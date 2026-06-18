@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عينة 2 — ثيم طبي فاتح ونظيف</title>
+<style>
+  body{margin:0;font-family:"Segoe UI",Tahoma,sans-serif;background:#f1f5f9;color:#0f172a}
+  header{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  header h1{font-size:17px;margin:0;color:#0369a1}
+  header .sub{font-size:12px;color:#64748b}
+  .container{max-width:920px;margin:0 auto;padding:16px}
+  .badge-style{display:inline-block;background:#e0f2fe;border:1px solid #bae6fd;color:#0369a1;padding:4px 12px;border-radius:20px;font-size:13px;margin-bottom:14px}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;box-shadow:0 1px 8px rgba(15,23,42,.05)}
+  .chart{direction:ltr;overflow-x:auto}
+  .arch{display:flex;justify-content:center;gap:5px}
+  .arch.lower{margin-top:22px;position:relative}
+  .arch.lower::before{content:"";position:absolute;top:-11px;left:4%;right:4%;height:1px;background:#cbd5e1}
+  .tooth{display:flex;flex-direction:column;align-items:center}
+  .tooth .num{font-size:10px;color:#94a3b8;margin-top:3px}
+  .chips{display:flex;gap:2px;min-height:14px;margin-top:2px}
+  .chip{font-size:9px;width:14px;height:14px;line-height:14px;text-align:center;border-radius:4px;color:#fff;border:1px solid #fff;font-weight:bold;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+  .chip.planned{background:transparent!important;border:1.5px dashed;line-height:11px}
+  .surf{stroke:#cbd5e1;stroke-width:1}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:16px;direction:rtl}
+  .legend .item{display:flex;align-items:center;gap:6px;font-size:12px;color:#475569}
+  .legend .dot{width:13px;height:13px;border-radius:4px;border:1px solid #cbd5e1}
+</style>
+</head>
+<body>
+<header><h1>🦷 عيادة د. رانيا — عينة بصرية</h1><div class="sub">الأسلوب 2: ثيم طبي فاتح ونظيف (مناسب للطباعة)</div></header>
+<div class="container">
+  <div class="badge-style">الأسلوب 2 — فاتح ونظيف</div>
+  <div class="card">
+    <div class="chart" id="chart"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+</div>
+<script>
+const COL={caries:"#c2762b",filling:"#2563eb",composite:"#0891b2",rct:"#ca8a04",post:"#ea9b0a",crown:"#16a34a",bridge:"#15803d",implant:"#2563eb",extract:"#dc2626",ortho:"#9333ea"};
+const NAME={caries:"تسوس",filling:"حشوة",composite:"حشوة تجميلية",rct:"علاج عصب",post:"وتد",crown:"تلبيسة",bridge:"جسر",implant:"زراعة",extract:"قلع",ortho:"تقويم"};
+const ABBR={rct:"ع",post:"و",crown:"ت",bridge:"ج",implant:"ز",extract:"✕",ortho:"ق"};
+const SOUND="#ffffff";
+const ADULT={upper:[18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28],lower:[48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38]};
+const DATA={
+ 16:{surfaces:{O:{key:'filling',status:'done'}},conditions:[{key:'rct',status:'done'},{key:'crown',status:'done'}]},
+ 14:{surfaces:{M:{key:'caries',status:'done'}},conditions:[]},
+ 24:{surfaces:{O:{key:'filling',status:'done'}},conditions:[]},
+ 25:{surfaces:{B:{key:'composite',status:'done'}},conditions:[]},
+ 26:{surfaces:{},conditions:[{key:'crown',status:'planned'}]},
+ 36:{surfaces:{},conditions:[{key:'extract',status:'done'}]},
+ 46:{surfaces:{},conditions:[{key:'rct',status:'done'},{key:'post',status:'done'}]},
+ 11:{surfaces:{},conditions:[{key:'implant',status:'planned'}]},
+};
+function toothSVG(id){
+  const S=42,I=12,t=DATA[id]||{surfaces:{},conditions:[]};
+  const surf=t.surfaces||{},conds=t.conditions||[];
+  const getC=k=>conds.find(c=>c.key===k);const has=k=>!!getC(k);
+  const dash=k=>getC(k).status==='planned'?' stroke-dasharray="3 2" opacity="0.65"':'';
+  function sf(sk){const e=surf[sk];if(!e)return `fill="${SOUND}"`;const c=COL[e.key];return e.status==='planned'?`fill="${c}" fill-opacity="0.28" stroke-dasharray="2 1.5"`:`fill="${c}"`;}
+  const o=`${I},${I} ${S-I},${I} ${S-I},${S-I} ${I},${S-I}`,B=`0,0 ${S},0 ${S-I},${I} ${I},${I}`,L=`0,${S} ${S},${S} ${S-I},${S-I} ${I},${S-I}`,M=`${S},0 ${S},${S} ${S-I},${S-I} ${S-I},${I}`,D=`0,0 0,${S} ${I},${S-I} ${I},${I}`;
+  let ov="";
+  if(has('rct'))ov+=`<line x1="${S/2}" y1="${S/2}" x2="${S/2}" y2="${S-4}" stroke="${COL.rct}" stroke-width="3"${dash('rct')}/><circle cx="${S/2}" cy="${S/2}" r="4.5" fill="${COL.rct}" stroke="#fff"${dash('rct')}/>`;
+  if(has('post'))ov+=`<line x1="${S/2}" y1="6" x2="${S/2}" y2="${S/2}" stroke="${COL.post}" stroke-width="3"${dash('post')}/>`;
+  if(has('crown'))ov+=`<rect x="2" y="2" width="${S-4}" height="${S-4}" rx="4" fill="none" stroke="${COL.crown}" stroke-width="3.5"${dash('crown')}/>`;
+  if(has('implant'))ov+=`<g stroke="${COL.implant}" stroke-width="2.4" stroke-linecap="round"${dash('implant')}><line x1="${S/2}" y1="7" x2="${S/2}" y2="${S-7}"/><line x1="${S/2-6}" y1="13" x2="${S/2+6}" y2="13"/><line x1="${S/2-6}" y1="20" x2="${S/2+6}" y2="20"/><line x1="${S/2-6}" y1="27" x2="${S/2+6}" y2="27"/></g>`;
+  if(has('extract'))ov+=`<g stroke="${COL.extract}" stroke-width="3.5" stroke-linecap="round"${dash('extract')}><line x1="7" y1="7" x2="${S-7}" y2="${S-7}"/><line x1="${S-7}" y1="7" x2="7" y2="${S-7}"/></g>`;
+  const dim=(has('extract')&&getC('extract').status==='done')?'opacity:.25':'';
+  return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}"><g style="${dim}">
+    <polygon class="surf" points="${B}" ${sf('B')}/><polygon class="surf" points="${L}" ${sf('L')}/>
+    <polygon class="surf" points="${M}" ${sf('M')}/><polygon class="surf" points="${D}" ${sf('D')}/>
+    <polygon class="surf" points="${o}" ${sf('O')}/></g>${ov}</svg>`;
+}
+function chips(id){const c=(DATA[id]||{}).conditions||[];if(!c.length)return'<div class="chips"></div>';
+  return '<div class="chips">'+c.map(x=>{const p=x.status==='planned';const st=p?`color:${COL[x.key]};border-color:${COL[x.key]}`:`background:${COL[x.key]}`;return `<span class="chip${p?' planned':''}" style="${st}">${ABBR[x.key]||'•'}</span>`;}).join('')+'</div>';}
+function arch(list,cls){return `<div class="arch ${cls}">`+list.map(id=>`<div class="tooth">${toothSVG(id)}<div class="num">${id}</div>${chips(id)}</div>`).join('')+'</div>';}
+document.getElementById('chart').innerHTML=arch(ADULT.upper,'upper')+arch(ADULT.lower,'lower');
+document.getElementById('legend').innerHTML=
+  `<div class="item" style="width:100%;color:#334155"><span class="dot" style="background:#2563eb"></span>صلب = مكتمل&nbsp;&nbsp;<span class="dot" style="background:transparent;border:1.5px dashed #ea9b0a"></span>متقطّع = مقترح</div>`+
+  `<div class="item"><span class="dot" style="background:${SOUND}"></span>سليم</div>`+
+  Object.keys(COL).map(k=>`<div class="item"><span class="dot" style="background:${COL[k]}"></span>${NAME[k]}</div>`).join('');
+</script>
+</body>
+</html>

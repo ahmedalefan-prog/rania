@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>عيادة د. رانيا — نموذج المخطط السني</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --line:#334155;
+    --text:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --accent2:#0ea5e9;
+    --good:#22c55e; --danger:#ef4444;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:"Segoe UI",Tahoma,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:linear-gradient(135deg,#0ea5e9,#0369a1);padding:14px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+  header .logo{width:40px;height:40px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px}
+  header h1{font-size:17px;margin:0}
+  header .sub{font-size:12px;color:#e0f2fe;opacity:.9}
+  .container{max-width:920px;margin:0 auto;padding:14px}
+  .tabs{display:flex;gap:8px;margin:12px 0;background:var(--panel);padding:6px;border-radius:14px}
+  .tab{flex:1;text-align:center;padding:11px;border-radius:10px;cursor:pointer;font-size:14px;color:var(--muted);transition:.15s;user-select:none}
+  .tab.active{background:var(--accent2);color:#fff;font-weight:bold}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+  .view{display:none}
+  .view.active{display:block}
+  /* Profile */
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+  .field input,.field textarea{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:14px;font-family:inherit}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .balance{display:flex;justify-content:space-between;align-items:center;background:var(--panel2);padding:14px;border-radius:12px;margin-top:6px}
+  .balance .amt{font-size:22px;font-weight:bold;color:var(--accent)}
+  /* Chart */
+  .chart-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  .toggle{display:flex;background:var(--panel2);border-radius:10px;overflow:hidden}
+  .toggle button{padding:8px 16px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;font-family:inherit}
+  .toggle button.active{background:var(--accent2);color:#fff}
+  .chart-wrap{direction:ltr;overflow-x:auto;padding:8px 0}
+  .arch{display:flex;justify-content:center;gap:4px;margin:6px 0}
+  .arch.lower{margin-top:18px;position:relative}
+  .arch.lower::before{content:"";position:absolute;top:-9px;left:5%;right:5%;height:1px;background:var(--line)}
+  .tooth{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+  .tooth svg{display:block}
+  .tooth .num{font-size:10px;color:var(--muted);direction:ltr}
+  .tooth.flagged .num{color:var(--accent);font-weight:bold}
+  .tooth .chips{display:flex;gap:2px;justify-content:center;min-height:14px}
+  .chip{font-size:9px;width:14px;height:14px;line-height:14px;text-align:center;border-radius:4px;color:#fff;border:1px solid #0f172a;font-weight:bold}
+  .chip.planned{background:transparent!important;border:1.5px dashed;line-height:11px}
+  .status-pick{display:flex;gap:6px;margin-bottom:14px}
+  .status-pick button{flex:1;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer}
+  .status-pick #stDone.active{border-color:var(--good);color:var(--good);background:#0c2a1a}
+  .status-pick #stPlan.active{border-color:#f59e0b;color:#f59e0b;background:#2a210c}
+  .cs.planned{border:1px dashed #f59e0b}
+  .cs-meta{color:var(--muted);font-size:11px}
+  .cs-actions{margin-right:auto;display:flex;gap:8px}
+  .cs-actions button{background:none;border:none;font-size:12px;cursor:pointer;font-family:inherit}
+  .cs-actions .todone{color:var(--good);font-weight:bold}
+  .cs-actions .rm{color:var(--danger)}
+  .badge-plan{font-size:10px;background:#2a210c;color:#f59e0b;border:1px solid #f59e0b;border-radius:5px;padding:0 5px;margin-right:4px}
+  .badge-done{font-size:10px;background:#0c2a1a;color:var(--good);border:1px solid var(--good);border-radius:5px;padding:0 5px;margin-right:4px}
+  .tl-item.planned{opacity:.9;border:1px dashed #f59e0b}
+  .balance.plan{margin-top:8px;background:#1c1a10;border:1px dashed #f59e0b}
+  .balance.plan .amt{color:#f59e0b;font-size:18px}
+  .surf{stroke:#0f172a;stroke-width:1;transition:.1s}
+  .surf:hover{stroke:#38bdf8;stroke-width:1.5}
+  /* Legend */
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:14px;direction:rtl}
+  .legend .item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .legend .dot{width:13px;height:13px;border-radius:4px;border:1px solid #0f172a}
+  /* Popup */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50}
+  .overlay.show{display:flex}
+  .sheet{background:var(--panel);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:18px;max-height:80vh;overflow-y:auto;animation:up .2s ease}
+  @keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:translateY(0);opacity:1}}
+  .sheet h3{margin:0 0 4px}
+  .sheet .hint{font-size:12px;color:var(--muted);margin-bottom:14px}
+  .cs-title{font-size:12px;color:var(--accent);margin:4px 0 8px;font-weight:bold}
+  .cs{display:flex;align-items:center;gap:8px;background:var(--panel2);padding:8px 10px;border-radius:9px;margin-bottom:6px;font-size:13px}
+  .cs .dot{width:13px;height:13px;border-radius:4px;border:1px solid #0f172a}
+  .cs > button{background:none;border:none;color:var(--danger);font-size:12px;cursor:pointer;font-family:inherit}
+  #currentState{margin-bottom:14px}
+  .surf-pick{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+  .surf-pick button{flex:1;min-width:64px;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer}
+  .surf-pick button.active{border-color:var(--accent);color:var(--accent);background:#0c2a3a}
+  .proc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .proc{display:flex;align-items:center;gap:9px;padding:11px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);cursor:pointer;font-size:13px}
+  .proc:active{transform:scale(.98)}
+  .proc .dot{width:15px;height:15px;border-radius:5px;flex-shrink:0;border:1px solid #0f172a}
+  .proc .cost{margin-right:auto;font-size:11px;color:var(--muted)}
+  .sheet-actions{display:flex;gap:8px;margin-top:14px}
+  .btn{flex:1;padding:12px;border-radius:11px;border:none;font-size:14px;font-family:inherit;cursor:pointer;font-weight:bold}
+  .btn-ghost{background:var(--panel2);color:var(--muted)}
+  .btn-danger{background:var(--danger);color:#fff}
+  /* Timeline */
+  .tl-item{display:flex;gap:12px;padding:12px;background:var(--panel2);border-radius:12px;margin-bottom:10px;align-items:center}
+  .tl-item .dot{width:16px;height:16px;border-radius:50%;flex-shrink:0}
+  .tl-item .info{flex:1}
+  .tl-item .info .t1{font-size:14px;font-weight:bold}
+  .tl-item .info .t2{font-size:12px;color:var(--muted)}
+  .tl-item .cost{font-weight:bold;color:var(--accent)}
+  .tl-item .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px}
+  .empty{text-align:center;color:var(--muted);padding:30px;font-size:14px}
+  .toolbar{display:flex;gap:8px;margin-top:8px}
+  .toolbar button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
+  .note-banner{background:#0c2a3a;border:1px solid #155e75;color:#bae6fd;padding:10px 12px;border-radius:10px;font-size:12px;margin-bottom:12px}
+  /* ===== الإعدادات: ثيمات وأشكال يختارها الطبيب ===== */
+  body.light{--bg:#f1f5f9;--panel:#ffffff;--panel2:#f8fafc;--line:#e2e8f0;--text:#0f172a;--muted:#64748b}
+  body.light header{background:#fff;border-bottom:1px solid #e2e8f0}
+  body.light header h1{color:#0369a1}
+  body.light header .sub{color:#64748b}
+  body.light .card{box-shadow:0 1px 8px rgba(15,23,42,.06)}
+  body.light .note-banner{background:#e0f2fe;border-color:#bae6fd;color:#0369a1}
+  .gear{margin-right:auto;background:rgba(255,255,255,.18);border:none;color:#fff;padding:9px 13px;border-radius:11px;font-size:13px;font-family:inherit;cursor:pointer}
+  body.light .gear{background:#e0f2fe;color:#0369a1}
+  .quad-labels{display:flex;justify-content:space-between;direction:ltr;color:var(--muted);font-size:11px;padding:0 5%;margin:3px 0}
+  .tooth{transition:transform .15s}
+  .tooth:hover{transform:translateY(-3px)}
+  .tooth svg{filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+  body.light .tooth svg{filter:drop-shadow(0 1px 2px rgba(15,23,42,.18))}
+  .set-group{margin-bottom:18px}
+  .set-group h4{margin:0 0 8px;font-size:13px;color:var(--accent)}
+  .set-opts{display:flex;gap:8px}
+  .set-opts button{flex:1;padding:13px;border-radius:11px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer}
+  .set-opts button.active{border-color:var(--accent);color:var(--accent);background:#0c2a3a;font-weight:bold}
+  body.light .set-opts button.active{background:#e0f2fe}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🦷</div>
+  <div>
+    <h1>عيادة د. رانيا للأسنان</h1>
+    <div class="sub">نموذج تجريبي — المخطط السني التفاعلي</div>
+  </div>
+  <button class="gear" onclick="openSettings()">⚙️ الإعدادات</button>
+</header>
+
+<div class="container">
+  <div class="note-banner">
+    💡 هذا نموذج لتجربة الإحساس فقط. البيانات تُحفظ مؤقتاً على هذا المتصفح. النسخة الكاملة (Next.js PWA) ستُبنى بعد موافقتك على التصميم.
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-view="profile">الملف الشخصي</div>
+    <div class="tab" data-view="chart">مخطط الأسنان</div>
+    <div class="tab" data-view="timeline">السجل الزمني</div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="view active" id="view-profile">
+    <div class="card">
+      <div class="grid2">
+        <div class="field"><label>الاسم</label><input id="pName" value="مريض تجريبي"></div>
+        <div class="field"><label>العمر</label><input id="pAge" value="34"></div>
+        <div class="field"><label>الهاتف</label><input id="pPhone" value="0500000000"></div>
+        <div class="field"><label>الأمراض المزمنة</label><input id="pChronic" placeholder="مثال: سكري"></div>
+      </div>
+      <div class="field"><label>الحساسية</label><input id="pAllergy" placeholder="مثال: بنسلين"></div>
+      <div class="balance">
+        <span>المنفّذ — مستحق على المريض (مكتمل) ✓</span>
+        <span class="amt" id="balanceAmt">0 $</span>
+      </div>
+      <div class="balance plan">
+        <span>الخطة المقترحة — تقدير (لم يُنفَّذ بعد) ◇</span>
+        <span class="amt" id="planAmt">0 $</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="view" id="view-chart">
+    <div class="card">
+      <div class="chart-controls">
+        <div class="toggle">
+          <button class="active" data-set="adult">أسنان البالغين (32)</button>
+          <button data-set="child">أسنان الأطفال (20)</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">اضغط على أي سطح من السن</div>
+      </div>
+      <div class="chart-wrap" id="chartWrap"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="view" id="view-timeline">
+    <div class="card">
+      <div id="timelineList"></div>
+      <div class="toolbar">
+        <button onclick="exportData()">⬇️ نسخة احتياطية</button>
+        <button onclick="document.getElementById('importFile').click()">⬆️ استعادة</button>
+        <button onclick="resetAll()">🗑️ مسح الكل</button>
+      </div>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="overlay" id="settingsOverlay">
+  <div class="sheet">
+    <h3>الإعدادات — المظهر</h3>
+    <div class="hint">يختارها الطبيب كما يناسبه، وتُحفظ تلقائياً</div>
+    <div class="set-group">
+      <h4>مظهر التطبيق</h4>
+      <div class="set-opts" id="setTheme">
+        <button data-v="dark">🌙 داكن</button>
+        <button data-v="light">⚪ فاتح (مناسب للطباعة)</button>
+      </div>
+    </div>
+    <div class="set-group">
+      <h4>شكل الأسنان</h4>
+      <div class="set-opts" id="setShape">
+        <button data-v="box">▦ مربّع تشريحي</button>
+        <button data-v="anat">🦷 تشريحي واقعي</button>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" onclick="closeSettings()">تم</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP SHEET -->
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <h3 id="sheetTitle">السن</h3>
+    <div class="hint">اختر الحالة ثم السطح ثم الإجراء — الإجراءات تتراكم ولا تُلغي بعضها</div>
+    <div id="currentState"></div>
+    <div class="status-pick">
+      <button id="stDone" class="active" data-st="done">✓ مكتمل (تم تنفيذه)</button>
+      <button id="stPlan" data-st="planned">◇ مقترح (خطة علاج)</button>
+    </div>
+    <div class="surf-pick" id="surfPick"></div>
+    <div class="proc-grid" id="procGrid"></div>
+    <div class="sheet-actions">
+      <button class="btn btn-danger" id="clearToothBtn">مسح إجراءات هذا السن</button>
+      <button class="btn btn-ghost" onclick="closeSheet()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== الإجراءات وألوانها ===== */
+const PROCEDURES = [
+  {key:"exam",     name:"فحص",            color:"#94a3b8", cost:0,   whole:true},
+  {key:"caries",   name:"تسوس",           color:"#b45309", cost:0,   whole:false},
+  {key:"filling",  name:"حشوة",           color:"#1d4ed8", cost:50,  whole:false},
+  {key:"composite",name:"حشوة تجميلية",   color:"#06b6d4", cost:80,  whole:false},
+  {key:"rct",      name:"علاج عصب",       color:"#eab308", cost:150, whole:true},
+  {key:"post",     name:"وتد",            color:"#f59e0b", cost:60,  whole:true},
+  {key:"crown",    name:"تلبيسة",         color:"#16a34a", cost:300, whole:true},
+  {key:"bridge",   name:"جسر",            color:"#15803d", cost:500, whole:true},
+  {key:"implant",  name:"زراعة",          color:"#2563eb", cost:900, whole:true},
+  {key:"extract",  name:"قلع",            color:"#dc2626", cost:70,  whole:true},
+  {key:"ortho",    name:"تقويم",          color:"#9333ea", cost:200, whole:true},
+  {key:"cleaning", name:"تنظيف",          color:"#14b8a6", cost:40,  whole:true},
+  {key:"whitening",name:"تبييض",          color:"#e879f9", cost:120, whole:true},
+  {key:"other",    name:"أخرى",           color:"#6b7280", cost:0,   whole:false},
+];
+const SOUND = "#f1f5f9";
+const TERMINAL = ["extract","implant"]; // إجراءات تُنهي السن وتلغي ما قبلها
+const ABBR = {exam:"ف",rct:"ع",post:"و",crown:"ت",bridge:"ج",implant:"ز",extract:"✕",ortho:"ق",cleaning:"ن",whitening:"ب"};
+const SURFACES = [
+  {key:"B", name:"خارجي", label:"Buccal"},
+  {key:"M", name:"إنسي",  label:"Mesial"},
+  {key:"O", name:"إطباقي",label:"Occlusal"},
+  {key:"D", name:"وحشي",  label:"Distal"},
+  {key:"L", name:"لساني", label:"Lingual"},
+];
+
+/* ===== ترقيم FDI ===== */
+const ADULT = {
+  upper: [18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28],
+  lower: [48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38]
+};
+const CHILD = {
+  upper: [55,54,53,52,51, 61,62,63,64,65],
+  lower: [85,84,83,82,81, 71,72,73,74,75]
+};
+
+/* ===== الحالة (State) ===== */
+let DB = load();
+let currentSet = "adult";
+let activeTooth = null;
+let activeSurface = "O";
+let activeStatus = "done"; // done | planned
+
+function load(){
+  let db = { teeth:{}, timeline:[] }; // teeth[id] = { surfaces:{O:procKey,...}, conditions:[procKey,...] }
+  try{ const r = localStorage.getItem("rania_proto"); if(r) db = JSON.parse(r); }catch(e){}
+  // ترقية البيانات القديمة إلى الصيغة الجديدة (عناصر بحالة done/planned)
+  Object.values(db.teeth||{}).forEach(t=>{
+    if(t.whole && !t.conditions) t.conditions = [t.whole];
+    delete t.whole;
+    if(!t.conditions) t.conditions = [];
+    if(!t.surfaces) t.surfaces = {};
+    t.conditions = t.conditions.map(c=> typeof c==='string' ? {key:c,status:'done',eid:null} : c);
+    Object.keys(t.surfaces).forEach(sk=>{ const v=t.surfaces[sk]; if(typeof v==='string') t.surfaces[sk]={key:v,status:'done',eid:null}; });
+  });
+  (db.timeline||[]).forEach(e=>{ if(!e.status) e.status='done'; });
+  if(!db.settings) db.settings = { theme:'dark', toothStyle:'box' };
+  return db;
+}
+function save(){ localStorage.setItem("rania_proto", JSON.stringify(DB)); }
+
+/* ===== رسم سن واحد (SVG بخمسة أسطح) ===== */
+function pcol(pk){ const p=PROCEDURES.find(p=>p.key===pk); return p?p.color:SOUND; }
+
+function toothSVG(id){
+  const S=42, I=12; // size, inset
+  const t = DB.teeth[id] || {};
+  const surf = t.surfaces || {};
+  const conds = t.conditions || [];
+  const getC = k => conds.find(c=>c.key===k);
+  const has = k => !!getC(k);
+  // تعبئة السطح: المكتمل صلب، المقترح شفاف متقطّع
+  function surfFill(sKey){
+    const e = surf[sKey]; if(!e) return `fill="${SOUND}"`;
+    const c = pcol(e.key);
+    return e.status==='planned'
+      ? `fill="${c}" fill-opacity="0.3" stroke-dasharray="2.5 1.5"`
+      : `fill="${c}"`;
+  }
+  // إن كان إجراء كامل السن مقترحاً نجعل خطوطه متقطّعة وشفافة
+  const dash = k => getC(k).status==='planned' ? ` stroke-dasharray="3 2" opacity="0.6"` : ``;
+  // polygons: B=top, L=bottom, M=right, D=left, O=center
+  const o=`${I},${I} ${S-I},${I} ${S-I},${S-I} ${I},${S-I}`;
+  const B=`0,0 ${S},0 ${S-I},${I} ${I},${I}`;
+  const L=`0,${S} ${S},${S} ${S-I},${S-I} ${I},${S-I}`;
+  const M=`${S},0 ${S},${S} ${S-I},${S-I} ${S-I},${I}`;
+  const D=`0,0 0,${S} ${I},${S-I} ${I},${I}`;
+  // طبقات فوق الأسطح (تتعايش معاً)
+  let ov="";
+  if(has('rct'))  ov+=`<line x1="${S/2}" y1="${S/2}" x2="${S/2}" y2="${S-4}" stroke="${pcol('rct')}" stroke-width="3"${dash('rct')}/><circle cx="${S/2}" cy="${S/2}" r="4.5" fill="${pcol('rct')}" stroke="#0f172a"${dash('rct')}/>`;
+  if(has('post')) ov+=`<line x1="${S/2}" y1="6" x2="${S/2}" y2="${S/2}" stroke="${pcol('post')}" stroke-width="3"${dash('post')}/>`;
+  if(has('crown')||has('bridge')){ const k=has('crown')?'crown':'bridge'; ov+=`<rect x="2" y="2" width="${S-4}" height="${S-4}" rx="3" fill="none" stroke="${pcol(k)}" stroke-width="3.5"${dash(k)}/>`; }
+  if(has('ortho')) ov+=`<rect x="${S/2-5}" y="${S/2-3}" width="10" height="6" rx="1.5" fill="none" stroke="${pcol('ortho')}" stroke-width="2"${dash('ortho')}/>`;
+  if(has('implant')) ov+=`<g stroke="${pcol('implant')}" stroke-width="2.4" stroke-linecap="round"${dash('implant')}><line x1="${S/2}" y1="7" x2="${S/2}" y2="${S-7}"/><line x1="${S/2-6}" y1="13" x2="${S/2+6}" y2="13"/><line x1="${S/2-6}" y1="20" x2="${S/2+6}" y2="20"/><line x1="${S/2-6}" y1="27" x2="${S/2+6}" y2="27"/></g>`;
+  if(has('extract')) ov+=`<g stroke="${pcol('extract')}" stroke-width="3.5" stroke-linecap="round"${dash('extract')}><line x1="7" y1="7" x2="${S-7}" y2="${S-7}"/><line x1="${S-7}" y1="7" x2="7" y2="${S-7}"/></g>`;
+  // إذا قُلع السن (مكتمل) نُخفّت الأسطح
+  const dim = (has('extract') && getC('extract').status==='done') ? 'opacity:.25' : '';
+  return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
+    <g style="${dim}">
+    <polygon class="surf" points="${B}" ${surfFill('B')} data-s="B"></polygon>
+    <polygon class="surf" points="${L}" ${surfFill('L')} data-s="L"></polygon>
+    <polygon class="surf" points="${M}" ${surfFill('M')} data-s="M"></polygon>
+    <polygon class="surf" points="${D}" ${surfFill('D')} data-s="D"></polygon>
+    <polygon class="surf" points="${o}" ${surfFill('O')} data-s="O"></polygon>
+    </g>${ov}
+  </svg>`;
+}
+
+/* ===== رسم سن تشريحي واقعي (تاج + جذور) ===== */
+function toothAnat(id){
+  const t = DB.teeth[id] || {};
+  const surf = t.surfaces || {}, conds = t.conditions || [];
+  const getC = k => conds.find(c=>c.key===k), has = k => !!getC(k);
+  const dash = k => getC(k).status==='planned' ? ' stroke-dasharray="3 2" opacity="0.6"' : '';
+  function sf(sk){ const e=surf[sk]; if(!e) return `fill="${SOUND}"`; const c=pcol(e.key);
+    return e.status==='planned' ? `fill="${c}" fill-opacity="0.3" stroke-dasharray="2 1.5"` : `fill="${c}"`; }
+  const W=46,H=66, ant=[1,2,3].includes(Number(String(id)[1])), cx=W/2;
+  const extracted = has('extract') && getC('extract').status==='done';
+  const IVORY="#e9e0cf", IVS="#bfb495";
+  let roots, crown;
+  if(ant){
+    roots=`<path d="M16,30 Q14,52 ${cx},62 Q32,52 30,30 Z" fill="${IVORY}" stroke="${IVS}"/>`;
+    crown=`<path d="M9,5 Q${cx},1 37,5 L34,30 L12,30 Z" fill="${SOUND}" stroke="#475569"/>
+     <clipPath id="ca${id}"><path d="M9,5 Q${cx},1 37,5 L34,30 L12,30 Z"/></clipPath>
+     <g clip-path="url(#ca${id})">
+       <rect class="surf" data-s="M" x="0" y="0" width="${cx}" height="22" ${sf('M')}/>
+       <rect class="surf" data-s="D" x="${cx}" y="0" width="${cx}" height="22" ${sf('D')}/>
+       <rect class="surf" data-s="B" x="11" y="2" width="24" height="16" ${sf('B')}/>
+       <rect class="surf" data-s="L" x="9" y="22" width="28" height="9" ${sf('L')}/>
+     </g>
+     <path d="M9,5 Q${cx},1 37,5 L34,30 L12,30 Z" fill="none" stroke="#475569"/>`;
+  } else {
+    roots=`<path d="M12,32 Q9,54 15,62 L19,40 Z" fill="${IVORY}" stroke="${IVS}"/>
+           <path d="M34,32 Q37,54 31,62 L27,40 Z" fill="${IVORY}" stroke="${IVS}"/>
+           <rect x="14" y="32" width="18" height="6" fill="${IVORY}"/>`;
+    const x0=4,y0=3,x1=42,y1=37,i=11;
+    crown=`<clipPath id="ca${id}"><rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" rx="7"/></clipPath>
+     <g clip-path="url(#ca${id})">
+       <polygon class="surf" data-s="B" points="${x0},${y0} ${x1},${y0} ${x1-i},${y0+i} ${x0+i},${y0+i}" ${sf('B')}/>
+       <polygon class="surf" data-s="L" points="${x0},${y1} ${x1},${y1} ${x1-i},${y1-i} ${x0+i},${y1-i}" ${sf('L')}/>
+       <polygon class="surf" data-s="M" points="${x1},${y0} ${x1},${y1} ${x1-i},${y1-i} ${x1-i},${y0+i}" ${sf('M')}/>
+       <polygon class="surf" data-s="D" points="${x0},${y0} ${x0},${y1} ${x0+i},${y1-i} ${x0+i},${y0+i}" ${sf('D')}/>
+       <rect class="surf" data-s="O" x="${x0+i}" y="${y0+i}" width="${x1-x0-2*i}" height="${y1-y0-2*i}" ${sf('O')}/>
+     </g>
+     <rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" rx="7" fill="none" stroke="#475569" stroke-width="1.2"/>`;
+  }
+  const cy = ant?16:20; let ov="";
+  if(has('rct'))  ov+=`<line x1="${cx}" y1="${cy}" x2="${cx}" y2="58" stroke="${pcol('rct')}" stroke-width="3"${dash('rct')}/><circle cx="${cx}" cy="${cy}" r="4.5" fill="${pcol('rct')}" stroke="#0f172a"${dash('rct')}/>`;
+  if(has('post')) ov+=`<line x1="${cx}" y1="${cy-8}" x2="${cx}" y2="40" stroke="${pcol('post')}" stroke-width="3"${dash('post')}/>`;
+  if(has('crown')||has('bridge')){ const k=has('crown')?'crown':'bridge'; ov+=`<rect x="${ant?7:3}" y="3" width="${ant?32:40}" height="${ant?28:34}" rx="7" fill="none" stroke="${pcol(k)}" stroke-width="3"${dash(k)}/>`; }
+  if(has('ortho')) ov+=`<rect x="${cx-5}" y="${cy-3}" width="10" height="6" rx="1.5" fill="none" stroke="${pcol('ortho')}" stroke-width="2"${dash('ortho')}/>`;
+  if(has('implant')) ov+=`<g stroke="${pcol('implant')}" stroke-width="2.4" stroke-linecap="round"${dash('implant')}><line x1="${cx}" y1="34" x2="${cx}" y2="60"/><line x1="${cx-6}" y1="40" x2="${cx+6}" y2="40"/><line x1="${cx-6}" y1="47" x2="${cx+6}" y2="47"/><line x1="${cx-6}" y1="54" x2="${cx+6}" y2="54"/></g>`;
+  if(has('extract')) ov+=`<g stroke="${pcol('extract')}" stroke-width="3.5" stroke-linecap="round"${dash('extract')}><line x1="8" y1="6" x2="38" y2="34"/><line x1="38" y1="6" x2="8" y2="34"/></g>`;
+  const dim = extracted ? 'opacity:.3' : '';
+  const rootsHTML = has('implant') ? '' : `<g style="${dim}">${roots}</g>`;
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${rootsHTML}<g style="${dim}">${crown}</g>${ov}</svg>`;
+}
+
+function renderChart(){
+  const set = currentSet==="adult"?ADULT:CHILD;
+  const wrap = document.getElementById("chartWrap");
+  const RENDER = (DB.settings && DB.settings.toothStyle==='anat') ? toothAnat : toothSVG;
+  function archHTML(list, cls){
+    return `<div class="arch ${cls}">` + list.map(id=>{
+      const t = DB.teeth[id];
+      const conds = t && t.conditions || [];
+      const flagged = t && (conds.length || (t.surfaces && Object.keys(t.surfaces).length));
+      const chips = conds.length ? `<div class="chips">`+conds.map(c=>{
+          const planned = c.status==='planned';
+          const st = planned ? `color:${pcol(c.key)};border-color:${pcol(c.key)}` : `background:${pcol(c.key)}`;
+          return `<span class="chip${planned?' planned':''}" style="${st}">${ABBR[c.key]||'•'}</span>`;
+        }).join("")+`</div>` : `<div class="chips"></div>`;
+      return `<div class="tooth ${flagged?'flagged':''}" data-id="${id}">
+        ${RENDER(id)}<div class="num">${id}</div>${chips}</div>`;
+    }).join("") + `</div>`;
+  }
+  const jaw = currentSet==="adult"?"":"اللبني ";
+  wrap.innerHTML =
+    `<div class="quad-labels"><span>الفك ${jaw}العلوي الأيمن ◄</span><span>► الأيسر</span></div>`+
+    archHTML(set.upper,"upper") + archHTML(set.lower,"lower")+
+    `<div class="quad-labels"><span>الفك ${jaw}السفلي الأيمن ◄</span><span>► الأيسر</span></div>`;
+  wrap.querySelectorAll(".tooth").forEach(el=>{
+    el.addEventListener("click",ev=>{
+      const id = el.dataset.id;
+      const poly = ev.target.closest(".surf");
+      const s = poly ? poly.dataset.s : "O";
+      openSheet(id, s);
+    });
+  });
+}
+
+function renderLegend(){
+  document.getElementById("legend").innerHTML =
+    `<div class="item" style="width:100%;color:#cbd5e1">
+       <span class="dot" style="background:#38bdf8"></span>صلب = مكتمل ✓
+       &nbsp;&nbsp;
+       <span class="dot" style="background:transparent;border:1.5px dashed #f59e0b"></span>متقطّع = مقترح ◇
+     </div>` +
+    `<div class="item"><span class="dot" style="background:${SOUND}"></span>سليم</div>` +
+    PROCEDURES.filter(p=>p.key!=="exam"&&p.key!=="other").map(p=>
+      `<div class="item"><span class="dot" style="background:${p.color}"></span>${p.name}</div>`).join("");
+}
+
+/* ===== النافذة المنبثقة ===== */
+function openSheet(id, surface){
+  activeTooth = id; activeSurface = surface; activeStatus = "done";
+  document.getElementById("sheetTitle").textContent = "السن رقم " + id;
+  // status toggle
+  const stDone=document.getElementById("stDone"), stPlan=document.getElementById("stPlan");
+  stDone.classList.add("active"); stPlan.classList.remove("active");
+  stDone.onclick=()=>{ activeStatus="done"; stDone.classList.add("active"); stPlan.classList.remove("active"); };
+  stPlan.onclick=()=>{ activeStatus="planned"; stPlan.classList.add("active"); stDone.classList.remove("active"); };
+  // surface picker
+  document.getElementById("surfPick").innerHTML = SURFACES.map(s=>
+    `<button data-s="${s.key}" class="${s.key===activeSurface?'active':''}">${s.name}<br><span style="font-size:9px;opacity:.6">${s.label}</span></button>`).join("");
+  document.querySelectorAll("#surfPick button").forEach(b=>{
+    b.addEventListener("click",()=>{ activeSurface=b.dataset.s;
+      document.querySelectorAll("#surfPick button").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+    });
+  });
+  // procedures
+  document.getElementById("procGrid").innerHTML = PROCEDURES.map(p=>
+    `<div class="proc" data-k="${p.key}">
+      <span class="dot" style="background:${p.color}"></span>${p.name}
+      <span class="cost">${p.cost>0?p.cost+" $":""}</span></div>`).join("");
+  document.querySelectorAll("#procGrid .proc").forEach(el=>{
+    el.addEventListener("click",()=>applyProcedure(el.dataset.k));
+  });
+  document.getElementById("clearToothBtn").onclick = ()=>clearTooth();
+  renderCurrentState();
+  document.getElementById("overlay").classList.add("show");
+}
+function closeSheet(){ document.getElementById("overlay").classList.remove("show"); }
+
+function renderCurrentState(){
+  const t = DB.teeth[activeTooth] || {};
+  const surf = t.surfaces || {}; const conds = t.conditions || [];
+  const rows = [];
+  function row(p, planned, where, actions){
+    return `<div class="cs ${planned?'planned':''}">
+      <span class="dot" style="background:${p.color}${planned?';opacity:.55':''}"></span>
+      ${p.name} <span class="cs-meta">(${where} • ${planned?'مقترح ◇':'مكتمل ✓'})</span>
+      <span class="cs-actions">${actions}</span></div>`;
+  }
+  conds.forEach(c=>{ const p=PROCEDURES.find(p=>p.key===c.key); const planned=c.status==='planned';
+    const act = (planned?`<button class="todone" onclick="convertCond('${c.key}')">✓ تم تنفيذه</button>`:``)
+              + `<button class="rm" onclick="removeCond('${c.key}')">إزالة</button>`;
+    rows.push(row(p, planned, "كامل السن", act)); });
+  Object.keys(surf).forEach(sk=>{ const e=surf[sk]; const p=PROCEDURES.find(p=>p.key===e.key); const s=SURFACES.find(s=>s.key===sk); const planned=e.status==='planned';
+    const act = (planned?`<button class="todone" onclick="convertSurface('${sk}')">✓ تم تنفيذه</button>`:``)
+              + `<button class="rm" onclick="removeSurface('${sk}')">إزالة</button>`;
+    rows.push(row(p, planned, s.name, act)); });
+  document.getElementById("currentState").innerHTML = rows.length
+    ? `<div class="cs-title">الحالة الحالية لهذا السن (${rows.length}):</div>` + rows.join("")
+    : "";
+}
+function refreshAll(){ save(); renderChart(); renderTimeline(); updateBalance(); renderCurrentState(); }
+function removeCond(k){ const t=DB.teeth[activeTooth]; if(!t)return; const c=t.conditions.find(c=>c.key===k); t.conditions=t.conditions.filter(x=>x.key!==k); if(c&&c.eid) DB.timeline=DB.timeline.filter(e=>e.id!==c.eid); refreshAll(); }
+function removeSurface(sk){ const t=DB.teeth[activeTooth]; if(!t)return; const e=t.surfaces[sk]; delete t.surfaces[sk]; if(e&&e.eid) DB.timeline=DB.timeline.filter(x=>x.id!==e.eid); refreshAll(); }
+function convertCond(k){ const t=DB.teeth[activeTooth]; const c=t&&t.conditions.find(c=>c.key===k); if(!c)return; c.status='done'; const e=DB.timeline.find(e=>e.id===c.eid); if(e) e.status='done'; refreshAll(); }
+function convertSurface(sk){ const t=DB.teeth[activeTooth]; const e=t&&t.surfaces[sk]; if(!e)return; e.status='done'; const te=DB.timeline.find(x=>x.id===e.eid); if(te) te.status='done'; refreshAll(); }
+
+function applyProcedure(procKey){
+  const p = PROCEDURES.find(p=>p.key===procKey);
+  if(!DB.teeth[activeTooth]) DB.teeth[activeTooth] = {surfaces:{},conditions:[]};
+  const t = DB.teeth[activeTooth];
+  if(!t.conditions) t.conditions = [];
+  if(!t.surfaces) t.surfaces = {};
+  const eid = Date.now()+Math.random();
+  const item = {key:procKey, status:activeStatus, eid};
+  if(p.whole){
+    if(TERMINAL.includes(procKey)){       // قلع أو زراعة: تُنهي السن وتلغي ما سبق
+      t.conditions = [item]; t.surfaces = {};
+    } else {                              // علاج عصب/وتد/تلبيسة...: تتراكم فوق بعضها
+      t.conditions = t.conditions.filter(c=>!TERMINAL.includes(c.key));
+      const ex = t.conditions.find(c=>c.key===procKey);
+      if(ex){ ex.status=activeStatus; ex.eid=eid; } else t.conditions.push(item);
+    }
+  } else {                                // إجراء سطحي: يتعايش مع باقي الأسطح
+    t.surfaces[activeSurface] = item;
+  }
+  // كل إجراء يُسجَّل في التاريخ بحالته (مكتمل/مقترح)
+  DB.timeline.push({
+    id: eid,
+    date: new Date().toISOString().slice(0,10).split("-").reverse().join("/"),
+    proc: p.name, color:p.color, tooth: activeTooth,
+    surface: p.whole? "" : (SURFACES.find(s=>s.key===activeSurface)||{}).name,
+    cost: p.cost, status: activeStatus
+  });
+  save(); renderChart(); renderTimeline(); updateBalance();
+  renderCurrentState(); // نُبقي النافذة مفتوحة لإظهار التراكم فوراً
+}
+function clearTooth(){
+  delete DB.teeth[activeTooth];
+  DB.timeline = DB.timeline.filter(x=>String(x.tooth)!==String(activeTooth));
+  save(); renderChart(); renderTimeline(); updateBalance(); closeSheet();
+}
+
+/* ===== السجل الزمني ===== */
+function renderTimeline(){
+  const list = document.getElementById("timelineList");
+  if(!DB.timeline.length){ list.innerHTML = `<div class="empty">لا توجد إجراءات بعد.<br>افتح مخطط الأسنان وابدأ التسجيل.</div>`; return; }
+  const sorted = [...DB.timeline].reverse();
+  list.innerHTML = sorted.map(x=>{
+    const planned = x.status==='planned';
+    const badge = planned ? `<span class="badge-plan">مقترح</span>` : `<span class="badge-done">مكتمل</span>`;
+    return `<div class="tl-item ${planned?'planned':''}">
+      <span class="dot" style="background:${x.color}${planned?';opacity:.55':''}"></span>
+      <div class="info">
+        <div class="t1">${x.proc} ${x.surface?'('+x.surface+')':''} ${badge}</div>
+        <div class="t2">السن ${x.tooth} • ${x.date}</div>
+      </div>
+      <span class="cost">${x.cost>0?x.cost+' $':'—'}</span>
+      <button class="del" onclick="delEntry('${x.id}')">×</button>
+    </div>`;}).join("");
+}
+function delEntry(eid){
+  DB.timeline = DB.timeline.filter(x=>String(x.id)!==String(eid));
+  // أزل العنصر المرتبط من حالة السن أيضاً
+  Object.values(DB.teeth).forEach(t=>{
+    if(t.conditions) t.conditions = t.conditions.filter(c=>String(c.eid)!==String(eid));
+    if(t.surfaces) Object.keys(t.surfaces).forEach(sk=>{ if(String(t.surfaces[sk].eid)===String(eid)) delete t.surfaces[sk]; });
+  });
+  save(); renderChart(); renderTimeline(); updateBalance();
+}
+function updateBalance(){
+  let done=0, plan=0;
+  DB.timeline.forEach(x=>{ const c=Number(x.cost)||0; if(x.status==='planned') plan+=c; else done+=c; });
+  document.getElementById("balanceAmt").textContent = done + " $";
+  const pe=document.getElementById("planAmt"); if(pe) pe.textContent = plan + " $";
+}
+
+/* ===== أدوات ===== */
+function exportData(){
+  const blob = new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "rania-backup-"+new Date().toISOString().slice(0,10)+".json";
+  a.click();
+}
+function importData(ev){
+  const f = ev.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ try{ DB = JSON.parse(r.result); save(); renderChart(); renderTimeline(); updateBalance(); alert("تمت الاستعادة بنجاح"); }catch(e){ alert("ملف غير صالح"); } };
+  r.readAsText(f);
+}
+function resetAll(){ if(confirm("مسح كل البيانات؟")){ DB={teeth:{},timeline:[]}; save(); renderChart(); renderTimeline(); updateBalance(); } }
+
+/* ===== التبويبات ===== */
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("view-"+t.dataset.view).classList.add("active");
+  });
+});
+document.querySelectorAll(".toggle button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".toggle button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active"); currentSet=b.dataset.set; renderChart();
+  });
+});
+document.getElementById("overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closeSheet(); });
+
+/* ===== الإعدادات ===== */
+function applySettings(){
+  const s = DB.settings;
+  document.body.classList.toggle("light", s.theme==="light");
+  document.querySelectorAll("#setTheme button").forEach(b=>b.classList.toggle("active", b.dataset.v===s.theme));
+  document.querySelectorAll("#setShape button").forEach(b=>b.classList.toggle("active", b.dataset.v===s.toothStyle));
+  renderChart();
+}
+function openSettings(){ applySettings(); document.getElementById("settingsOverlay").classList.add("show"); }
+function closeSettings(){ document.getElementById("settingsOverlay").classList.remove("show"); }
+document.querySelectorAll("#setTheme button").forEach(b=>b.addEventListener("click",()=>{ DB.settings.theme=b.dataset.v; save(); applySettings(); }));
+document.querySelectorAll("#setShape button").forEach(b=>b.addEventListener("click",()=>{ DB.settings.toothStyle=b.dataset.v; save(); applySettings(); }));
+document.getElementById("settingsOverlay").addEventListener("click",e=>{ if(e.target.id==="settingsOverlay") closeSettings(); });
+
+/* ===== تشغيل ===== */
+applySettings(); renderLegend(); renderTimeline(); updateBalance();
+</script>
+</body>
+</html>

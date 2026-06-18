@@ -1,0 +1,14 @@
+{
+  "name": "عيادة د. رانيا للأسنان",
+  "short_name": "عيادة رانيا",
+  "description": "إدارة عيادة الأسنان — مرضى، مخطط أسنان، مواعيد، محاسبة",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

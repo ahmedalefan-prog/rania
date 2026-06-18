@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عينة المواعيد — جدول احترافي شامل</title>
+<style>
+  :root{--bg:#0f172a;--panel:#1e293b;--panel2:#273449;--line:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--accent2:#0ea5e9;--good:#22c55e;--danger:#ef4444}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:"Segoe UI",Tahoma,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:linear-gradient(135deg,#0ea5e9,#0369a1);padding:13px 16px}
+  header h1{font-size:16px;margin:0}
+  header .sub{font-size:11px;color:#e0f2fe}
+  .container{max-width:1000px;margin:0 auto;padding:14px}
+  .note{background:#0c2a3a;border:1px solid #155e75;color:#bae6fd;padding:9px 12px;border-radius:10px;font-size:12px;margin-bottom:12px}
+  .layout{display:grid;grid-template-columns:300px 1fr;gap:14px}
+  @media(max-width:760px){.layout{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .card h3{margin:0 0 10px;font-size:14px}
+
+  /* mini month */
+  .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .mhead button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:4px 9px;cursor:pointer;font-family:inherit}
+  .mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .mwd{font-size:9px;color:var(--muted);text-align:center}
+  .mcell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:12px;cursor:pointer;position:relative;border:1px solid transparent}
+  .mcell:hover{background:var(--panel2)}
+  .mcell.other{opacity:.3}
+  .mcell.sel{background:var(--accent2);color:#fff;font-weight:bold}
+  .mcell.today{border-color:var(--accent)}
+  .mcell .pip{width:4px;height:4px;border-radius:50%;background:var(--accent);margin-top:2px}
+  .mcell.sel .pip{background:#fff}
+
+  /* waiting list */
+  .wl-item{display:flex;align-items:center;gap:8px;background:var(--panel2);border-radius:10px;padding:9px;margin-bottom:7px;font-size:13px}
+  .wl-item .nm{flex:1}
+  .wl-item .tag{font-size:10px;padding:2px 7px;border-radius:6px;color:#fff}
+  .wl-item button{background:var(--accent2);border:none;color:#fff;border-radius:8px;padding:5px 9px;cursor:pointer;font-family:inherit;font-size:12px}
+
+  /* day timeline */
+  .dhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .dhead .dl{font-weight:bold}
+  .dhead .nav button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit;margin-inline-start:5px}
+  .daywrap{display:flex;direction:rtl;max-height:540px;overflow-y:auto}
+  .times{width:50px;flex-shrink:0}
+  .timecell{height:50px;font-size:11px;color:var(--muted);text-align:center;padding-top:2px}
+  .track{position:relative;flex:1;border-inline-start:1px solid var(--line)}
+  .slot{height:50px;border-top:1px solid var(--line);cursor:pointer}
+  .slot:hover{background:rgba(56,189,248,.08)}
+  .appt{position:absolute;inset-inline:6px;border-radius:9px;padding:5px 9px;color:#fff;overflow:hidden;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35);border-inline-start:4px solid rgba(255,255,255,.6)}
+  .appt .nm{font-size:13px;font-weight:bold}
+  .appt .tt{font-size:11px;opacity:.92}
+  .appt.done{opacity:.7}
+
+  .kpis{display:flex;gap:8px;margin-bottom:10px}
+  .kpi{flex:1;background:var(--panel2);border-radius:10px;padding:8px;text-align:center}
+  .kpi .v{font-size:18px;font-weight:bold}.kpi .k{font-size:10px;color:var(--muted)}
+
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50}
+  .ov.show{display:flex}
+  .modal{background:var(--panel);width:100%;max-width:400px;border-radius:18px;padding:18px;margin:14px}
+  .modal h3{margin:0 0 12px}
+  .fld{margin-bottom:10px}.fld label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+  .fld input,.fld select{width:100%;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-family:inherit;font-size:14px}
+  .tsel{display:flex;flex-wrap:wrap;gap:6px}
+  .tsel button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px}
+  .tsel button.active{outline:2px solid var(--accent)}
+  .tsel .dot{width:11px;height:11px;border-radius:3px}
+  .acts{display:flex;gap:8px;margin-top:8px}
+  .btn{flex:1;padding:11px;border-radius:10px;border:none;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;background:var(--accent2);color:#fff}
+  .btn.ghost{background:var(--panel2);color:var(--muted)}.btn.danger{background:var(--danger);color:#fff}
+</style>
+</head>
+<body>
+<header><h1>🗓️ المواعيد — عيادة د. رانيا</h1><div class="sub">عيّنة (2): جدول احترافي شامل — مصغّر الشهر + جدول اليوم + قائمة انتظار</div></header>
+<div class="container">
+  <div class="note">💡 اضغط يوماً في مصغّر الشهر ليظهر جدوله • اضغط خانة فارغة للحجز • «احجز» في قائمة الانتظار يضع المريض في أول فراغ.</div>
+  <div class="layout">
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="mhead"><button onclick="mMove(-1)">‹</button><span id="mLabel" style="font-weight:bold;font-size:13px"></span><button onclick="mMove(1)">›</button></div>
+        <div class="mgrid" id="mgrid"></div>
+      </div>
+      <div class="card">
+        <h3>⏳ قائمة الانتظار</h3>
+        <div id="waitlist"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="kpis" id="kpis"></div>
+      <div class="dhead">
+        <span class="dl" id="dLabel"></span>
+        <span class="nav"><button onclick="dMove(-1)">‹ السابق</button><button onclick="dMove(1)">التالي ›</button></span>
+      </div>
+      <div class="daywrap"><div class="times" id="times"></div><div class="track" id="track"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov"><div class="modal">
+  <h3 id="mTitle">موعد جديد</h3>
+  <div class="fld"><label>اسم المريض</label><input id="fName" placeholder="مثال: أحمد"></div>
+  <div class="fld"><label>نوع الإجراء</label><div class="tsel" id="fTreat"></div></div>
+  <div class="fld" style="display:flex;gap:8px">
+    <div style="flex:1"><label>الوقت</label><input id="fTime" type="time"></div>
+    <div style="flex:1"><label>المدة</label><select id="fDur"><option>15</option><option selected>30</option><option>45</option><option>60</option></select></div>
+  </div>
+  <div class="acts"><button class="btn" onclick="saveAppt()">حفظ</button>
+    <button class="btn danger" id="fDel" onclick="delAppt()" style="display:none">حذف</button>
+    <button class="btn ghost" onclick="closeModal()">إلغاء</button></div>
+</div></div>
+
+<script>
+const TREAT=[{k:"مراجعة",c:"#38bdf8"},{k:"حشوة",c:"#1d4ed8"},{k:"علاج عصب",c:"#eab308"},{k:"تلبيسة",c:"#16a34a"},{k:"زراعة",c:"#2563eb"},{k:"خلع",c:"#dc2626"},{k:"تقويم",c:"#9333ea"},{k:"تنظيف",c:"#14b8a6"},{k:"أخرى",c:"#6b7280"}];
+const tc=k=>(TREAT.find(t=>t.k===k)||TREAT[0]).c;
+const WS=9*60,WE=18*60,SLOT=30,NSLOT=(WE-WS)/SLOT;
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const m2t=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`,t2m=t=>{const[a,b]=t.split(":").map(Number);return a*60+b};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const startOfWeek=d=>{const x=new Date(d);return addDays(x,-((x.getDay()+1)%7));};
+
+let sel=new Date(), mCur=new Date();
+let APPTS=load(), WAIT=[{name:"فهد ناصر",treat:"علاج عصب"},{name:"ليلى عبدالله",treat:"تنظيف"},{name:"عمر حسن",treat:"تلبيسة"}];
+function load(){try{const r=localStorage.getItem("rania_appts_demo");if(r)return JSON.parse(r);}catch(e){}
+  const t=new Date(),d0=ymd(t),d1=ymd(addDays(t,1));
+  return[{id:1,date:d0,start:540,dur:30,name:"أحمد العتيبي",treat:"حشوة",status:"upcoming"},
+    {id:2,date:d0,start:600,dur:45,name:"سارة محمد",treat:"تقويم",status:"upcoming"},
+    {id:3,date:d0,start:690,dur:30,name:"خالد فهد",treat:"خلع",status:"done"},
+    {id:4,date:d0,start:780,dur:60,name:"نورة سعد",treat:"زراعة",status:"upcoming"},
+    {id:5,date:d1,start:570,dur:30,name:"ريم خالد",treat:"مراجعة",status:"upcoming"}];}
+const save=()=>localStorage.setItem("rania_appts_demo",JSON.stringify(APPTS));
+let seq=100;
+const dayAppts=d=>APPTS.filter(a=>a.date===ymd(d)).sort((a,b)=>a.start-b.start);
+
+function renderMini(){
+  const today=ymd(new Date()),first=new Date(mCur.getFullYear(),mCur.getMonth(),1),start=startOfWeek(first);
+  document.getElementById("mLabel").textContent=mCur.toLocaleDateString("ar",{month:"long",year:"numeric"});
+  const WD=["س","ح","ن","ث","ر","خ","ج"];
+  let h=WD.map(w=>`<div class="mwd">${w}</div>`).join("");
+  for(let i=0;i<42;i++){const day=addDays(start,i),k=ymd(day);
+    const cls=[day.getMonth()!==mCur.getMonth()?"other":"",k===ymd(sel)?"sel":"",k===today?"today":""].join(" ");
+    const has=APPTS.some(a=>a.date===k);
+    h+=`<div class="mcell ${cls}" data-d="${k}">${day.getDate()}${has?'<span class="pip"></span>':''}</div>`;}
+  const g=document.getElementById("mgrid");g.innerHTML=h;
+  g.querySelectorAll(".mcell").forEach(c=>c.onclick=()=>{sel=new Date(c.dataset.d);renderAll();});
+}
+function mMove(d){mCur=new Date(mCur.getFullYear(),mCur.getMonth()+d,1);renderMini();}
+
+function renderDay(){
+  document.getElementById("dLabel").textContent=sel.toLocaleDateString("ar",{weekday:"long",day:"numeric",month:"long"});
+  let times="",slots="";
+  for(let i=0;i<NSLOT;i++){const m=WS+i*SLOT;times+=`<div class="timecell">${m2t(m)}</div>`;
+    slots+=`<div class="slot" data-min="${m}"></div>`;}
+  let blocks="";dayAppts(sel).forEach(a=>{const top=((a.start-WS)/SLOT)*50,hh=(a.dur/SLOT)*50-4;
+    blocks+=`<div class="appt ${a.status}" data-id="${a.id}" style="top:${top}px;height:${hh}px;background:${tc(a.treat)}"><div class="nm">${a.name}</div><div class="tt">${a.treat} • ${m2t(a.start)}</div></div>`;});
+  document.getElementById("times").innerHTML=times;
+  const tr=document.getElementById("track");tr.innerHTML=slots+blocks;
+  tr.querySelectorAll(".slot").forEach(s=>s.onclick=()=>openNew(+s.dataset.min));
+  tr.querySelectorAll(".appt").forEach(b=>b.onclick=e=>{e.stopPropagation();openEdit(+b.dataset.id);});
+  const list=dayAppts(sel);
+  document.getElementById("kpis").innerHTML=
+    `<div class="kpi"><div class="v">${list.length}</div><div class="k">مواعيد اليوم</div></div>
+     <div class="kpi"><div class="v" style="color:var(--good)">${list.filter(a=>a.status==='done').length}</div><div class="k">تم</div></div>
+     <div class="kpi"><div class="v" style="color:var(--accent)">${list.filter(a=>a.status==='upcoming').length}</div><div class="k">قادمة</div></div>`;
+}
+function dMove(d){sel=addDays(sel,d);renderAll();}
+
+function renderWait(){document.getElementById("waitlist").innerHTML = WAIT.length? WAIT.map((w,i)=>
+  `<div class="wl-item"><span class="nm">${w.name}</span><span class="tag" style="background:${tc(w.treat)}">${w.treat}</span><button onclick="placeWait(${i})">احجز</button></div>`).join("")
+  : `<div style="color:var(--muted);font-size:12px;text-align:center;padding:10px">لا أحد في الانتظار</div>`;}
+function placeWait(i){const w=WAIT[i];let m=WS;const taken=dayAppts(sel);
+  while(m<WE && taken.some(a=>m<a.start+a.dur&&a.start<m+30))m+=SLOT;
+  APPTS.push({id:++seq,date:ymd(sel),start:m,dur:30,name:w.name,treat:w.treat,status:"upcoming"});
+  WAIT.splice(i,1);save();renderAll();}
+
+function renderAll(){renderMini();renderDay();renderWait();}
+
+/* modal */
+let editId=null,selTreat="مراجعة";
+function renderTreat(){document.getElementById("fTreat").innerHTML=TREAT.map(t=>`<button data-k="${t.k}" class="${t.k===selTreat?'active':''}"><span class="dot" style="background:${t.c}"></span>${t.k}</button>`).join("");
+  document.querySelectorAll("#fTreat button").forEach(b=>b.onclick=()=>{selTreat=b.dataset.k;renderTreat();});}
+function openNew(min){editId=null;selTreat="مراجعة";document.getElementById("mTitle").textContent="موعد جديد";
+  document.getElementById("fName").value="";document.getElementById("fTime").value=m2t(min);document.getElementById("fDur").value="30";
+  document.getElementById("fDel").style.display="none";renderTreat();document.getElementById("ov").classList.add("show");}
+function openEdit(id){const a=APPTS.find(x=>x.id===id);editId=id;selTreat=a.treat;document.getElementById("mTitle").textContent="تعديل الموعد";
+  document.getElementById("fName").value=a.name;document.getElementById("fTime").value=m2t(a.start);document.getElementById("fDur").value=String(a.dur);
+  document.getElementById("fDel").style.display="block";renderTreat();document.getElementById("ov").classList.add("show");}
+const closeModal=()=>document.getElementById("ov").classList.remove("show");
+function saveAppt(){const name=document.getElementById("fName").value.trim()||"بدون اسم",start=t2m(document.getElementById("fTime").value||"09:00"),dur=+document.getElementById("fDur").value;
+  if(editId){Object.assign(APPTS.find(x=>x.id===editId),{name,start,dur,treat:selTreat});}
+  else APPTS.push({id:++seq,date:ymd(sel),start,dur,name,treat:selTreat,status:"upcoming"});
+  save();closeModal();renderAll();}
+function delAppt(){APPTS=APPTS.filter(a=>a.id!==editId);save();closeModal();renderAll();}
+document.getElementById("ov").onclick=e=>{if(e.target.id==="ov")closeModal();};
+
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عينة المواعيد — تقويم يومي/أسبوعي/شهري</title>
+<style>
+  :root{--bg:#0f172a;--panel:#1e293b;--panel2:#273449;--line:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--accent2:#0ea5e9;--good:#22c55e;--danger:#ef4444}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:"Segoe UI",Tahoma,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:linear-gradient(135deg,#0ea5e9,#0369a1);padding:13px 16px}
+  header h1{font-size:16px;margin:0}
+  header .sub{font-size:11px;color:#e0f2fe}
+  .container{max-width:880px;margin:0 auto;padding:14px}
+  .bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .nav{display:flex;align-items:center;gap:6px}
+  .nav button,.today{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:8px 12px;cursor:pointer;font-family:inherit;font-size:14px}
+  .curlabel{font-weight:bold;font-size:15px;min-width:170px;text-align:center}
+  .seg{display:flex;background:var(--panel2);border-radius:10px;overflow:hidden;margin-inline-start:auto}
+  .seg button{padding:8px 15px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px}
+  .seg button.active{background:var(--accent2);color:#fff;font-weight:bold}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:8px;overflow:hidden}
+
+  /* DAY */
+  .daywrap{display:flex;direction:rtl}
+  .times{flex-shrink:0;width:52px}
+  .timecell{height:52px;font-size:11px;color:var(--muted);text-align:center;padding-top:2px;border-top:1px solid transparent}
+  .track{position:relative;flex:1;border-inline-start:1px solid var(--line)}
+  .slot{height:52px;border-top:1px solid var(--line);cursor:pointer;transition:.1s}
+  .slot:hover{background:rgba(56,189,248,.08)}
+  .slot .plus{opacity:0;color:var(--accent);font-size:13px;padding:4px 8px}
+  .slot:hover .plus{opacity:1}
+  .appt{position:absolute;inset-inline:6px;border-radius:9px;padding:5px 9px;color:#fff;overflow:hidden;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35);border-inline-start:4px solid rgba(255,255,255,.6)}
+  .appt .nm{font-size:13px;font-weight:bold}
+  .appt .tt{font-size:11px;opacity:.92}
+  .appt.done{opacity:.75}
+  .appt.noshow{opacity:.6;filter:grayscale(.4)}
+
+  /* WEEK */
+  .weekgrid{display:flex;direction:rtl}
+  .wktimes{width:42px;flex-shrink:0}
+  .wktime{height:38px;font-size:10px;color:var(--muted);text-align:center}
+  .wkcols{display:flex;flex:1}
+  .wkcol{flex:1;border-inline-start:1px solid var(--line);position:relative}
+  .wkhead{height:34px;text-align:center;font-size:12px;border-bottom:1px solid var(--line);padding-top:6px;position:sticky;top:0;background:var(--panel)}
+  .wkhead .d{font-weight:bold}
+  .wkhead.today{color:var(--accent)}
+  .wktrack{position:relative}
+  .wkslot{height:38px;border-top:1px solid var(--line);cursor:pointer}
+  .wkslot:hover{background:rgba(56,189,248,.08)}
+  .wkappt{position:absolute;inset-inline:2px;border-radius:6px;padding:2px 4px;color:#fff;font-size:10px;overflow:hidden;cursor:pointer;line-height:1.2}
+
+  /* MONTH */
+  .month{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:6px}
+  .wd{text-align:center;font-size:11px;color:var(--muted);padding:4px 0}
+  .mday{min-height:74px;background:var(--panel2);border-radius:9px;padding:5px;cursor:pointer;border:1px solid transparent}
+  .mday:hover{border-color:var(--accent)}
+  .mday.other{opacity:.35}
+  .mday.today{border-color:var(--accent)}
+  .mday .dn{font-size:12px;color:var(--muted)}
+  .mday.today .dn{color:var(--accent);font-weight:bold}
+  .mev{font-size:9px;border-radius:4px;padding:1px 4px;margin-top:2px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .more{font-size:9px;color:var(--muted);margin-top:2px}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px}
+  .legend .item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .legend .dot{width:12px;height:12px;border-radius:4px}
+  .note{background:#0c2a3a;border:1px solid #155e75;color:#bae6fd;padding:9px 12px;border-radius:10px;font-size:12px;margin-bottom:12px}
+
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50}
+  .ov.show{display:flex}
+  .modal{background:var(--panel);width:100%;max-width:400px;border-radius:18px;padding:18px;margin:14px;animation:pop .15s}
+  @keyframes pop{from{transform:scale(.95);opacity:.6}to{transform:scale(1);opacity:1}}
+  .modal h3{margin:0 0 12px}
+  .fld{margin-bottom:10px}
+  .fld label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+  .fld input,.fld select{width:100%;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-family:inherit;font-size:14px}
+  .tsel{display:flex;flex-wrap:wrap;gap:6px}
+  .tsel button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px}
+  .tsel button.active{outline:2px solid var(--accent)}
+  .tsel .dot{width:11px;height:11px;border-radius:3px}
+  .warn{color:#fbbf24;font-size:12px;margin-bottom:8px}
+  .acts{display:flex;gap:8px;margin-top:8px}
+  .btn{flex:1;padding:11px;border-radius:10px;border:none;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;background:var(--accent2);color:#fff}
+  .btn.ghost{background:var(--panel2);color:var(--muted)}
+  .btn.danger{background:var(--danger);color:#fff}
+</style>
+</head>
+<body>
+<header><h1>🗓️ المواعيد — عيادة د. رانيا</h1><div class="sub">عيّنة (1): تقويم يومي / أسبوعي / شهري — تفاعلي</div></header>
+<div class="container">
+  <div class="note">💡 جرّب: اضغط أي خانة فارغة لحجز موعد • بدّل بين يوم/أسبوع/شهر • اضغط موعداً لتغييره. (عيّنة للتصميم فقط)</div>
+
+  <div class="bar">
+    <div class="nav">
+      <button onclick="move(-1)">‹</button>
+      <span class="curlabel" id="curlabel"></span>
+      <button onclick="move(1)">›</button>
+    </div>
+    <button class="today" onclick="goToday()">اليوم</button>
+    <div class="seg">
+      <button data-v="day" class="active" onclick="setView('day')">يوم</button>
+      <button data-v="week" onclick="setView('week')">أسبوع</button>
+      <button data-v="month" onclick="setView('month')">شهر</button>
+    </div>
+  </div>
+
+  <div class="card" id="view"></div>
+
+  <div class="legend" id="legend"></div>
+</div>
+
+<!-- modal -->
+<div class="ov" id="ov">
+  <div class="modal">
+    <h3 id="mTitle">موعد جديد</h3>
+    <div class="warn" id="mWarn" style="display:none"></div>
+    <div class="fld"><label>اسم المريض</label><input id="mName" placeholder="مثال: أحمد"></div>
+    <div class="fld"><label>نوع الإجراء</label><div class="tsel" id="mTreat"></div></div>
+    <div class="fld" style="display:flex;gap:8px">
+      <div style="flex:1"><label>الوقت</label><input id="mTime" type="time"></div>
+      <div style="flex:1"><label>المدة (دقيقة)</label>
+        <select id="mDur"><option>15</option><option selected>30</option><option>45</option><option>60</option></select></div>
+    </div>
+    <div class="acts">
+      <button class="btn" onclick="saveAppt()">حفظ</button>
+      <button class="btn danger" id="mDel" onclick="deleteAppt()" style="display:none">حذف</button>
+      <button class="btn ghost" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TREAT=[
+  {k:"مراجعة",c:"#38bdf8"},{k:"حشوة",c:"#1d4ed8"},{k:"علاج عصب",c:"#eab308"},
+  {k:"تلبيسة",c:"#16a34a"},{k:"زراعة",c:"#2563eb"},{k:"خلع",c:"#dc2626"},
+  {k:"تقويم",c:"#9333ea"},{k:"تنظيف",c:"#14b8a6"},{k:"تبييض",c:"#e879f9"},{k:"أخرى",c:"#6b7280"}
+];
+const tc=k=>(TREAT.find(t=>t.k===k)||TREAT[0]).c;
+const WS=9*60, WE=18*60, SLOT=30, NSLOT=(WE-WS)/SLOT;
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const m2t=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
+const t2m=t=>{const[a,b]=t.split(":").map(Number);return a*60+b};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+
+let view="day", cur=new Date();
+let APPTS=load();
+
+function load(){
+  try{const r=localStorage.getItem("rania_appts_demo");if(r)return JSON.parse(r);}catch(e){}
+  const t=new Date(), d0=ymd(t), d1=ymd(addDays(t,1)), dm1=ymd(addDays(t,-1)), d2=ymd(addDays(t,2));
+  return [
+    {id:1,date:d0,start:540,dur:30,name:"أحمد العتيبي",treat:"حشوة",status:"upcoming"},
+    {id:2,date:d0,start:600,dur:45,name:"سارة محمد",treat:"تقويم",status:"upcoming"},
+    {id:3,date:d0,start:690,dur:30,name:"خالد فهد",treat:"خلع",status:"done"},
+    {id:4,date:d0,start:780,dur:60,name:"نورة سعد",treat:"زراعة",status:"upcoming"},
+    {id:5,date:d1,start:570,dur:30,name:"ليلى عبدالله",treat:"تنظيف",status:"upcoming"},
+    {id:6,date:d1,start:660,dur:45,name:"فهد ناصر",treat:"علاج عصب",status:"upcoming"},
+    {id:7,date:dm1,start:600,dur:30,name:"ريم خالد",treat:"مراجعة",status:"done"},
+    {id:8,date:d2,start:630,dur:30,name:"عمر حسن",treat:"تلبيسة",status:"upcoming"},
+  ];
+}
+const save=()=>localStorage.setItem("rania_appts_demo",JSON.stringify(APPTS));
+let seq=100;
+
+function setView(v){view=v;document.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("active",b.dataset.v===v));render();}
+function move(dir){cur=addDays(cur, view==="day"?dir : view==="week"?dir*7 : 0);
+  if(view==="month"){cur=new Date(cur.getFullYear(),cur.getMonth()+dir,1);}render();}
+function goToday(){cur=new Date();render();}
+
+function render(){
+  const el=document.getElementById("view");
+  if(view==="day"){el.innerHTML=renderDay(cur);bindDay(el);label(cur.toLocaleDateString("ar",{weekday:"long",day:"numeric",month:"long"}));}
+  else if(view==="week"){el.innerHTML=renderWeek(cur);bindWeek(el);
+    const s=startOfWeek(cur);label(`${s.toLocaleDateString("ar",{day:"numeric",month:"short"})} – ${addDays(s,6).toLocaleDateString("ar",{day:"numeric",month:"short"})}`);}
+  else {el.innerHTML=renderMonth(cur);bindMonth(el);label(cur.toLocaleDateString("ar",{month:"long",year:"numeric"}));}
+  renderLegend();
+}
+const label=t=>document.getElementById("curlabel").textContent=t;
+
+function dayAppts(d){const k=ymd(d);return APPTS.filter(a=>a.date===k).sort((a,b)=>a.start-b.start);}
+
+function renderDay(d){
+  let times="",slots="",blocks="";
+  for(let i=0;i<NSLOT;i++){const m=WS+i*SLOT;times+=`<div class="timecell">${m2t(m)}</div>`;
+    slots+=`<div class="slot" data-min="${m}"><span class="plus">+ حجز</span></div>`;}
+  dayAppts(d).forEach(a=>{
+    const top=((a.start-WS)/SLOT)*52, h=(a.dur/SLOT)*52-4;
+    blocks+=`<div class="appt ${a.status}" data-id="${a.id}" style="top:${top}px;height:${h}px;background:${tc(a.treat)}">
+      <div class="nm">${a.name}</div><div class="tt">${a.treat} • ${m2t(a.start)}${a.status==='done'?' ✓':a.status==='noshow'?' ✕':''}</div></div>`;
+  });
+  return `<div class="daywrap"><div class="times">${times}</div><div class="track">${slots}${blocks}</div></div>`;
+}
+function bindDay(el){
+  el.querySelectorAll(".slot").forEach(s=>s.onclick=()=>openNew(ymd(cur),+s.dataset.min));
+  el.querySelectorAll(".appt").forEach(b=>b.onclick=e=>{e.stopPropagation();openEdit(+b.dataset.id);});
+}
+
+function startOfWeek(d){const x=new Date(d);const wd=x.getDay();const diff=(wd+1)%7;/*Sat=6 -> start Sat*/return addDays(x,-diff);}
+function renderWeek(d){
+  const s=startOfWeek(d),today=ymd(new Date());
+  let times="";for(let i=0;i<NSLOT;i++)times+=`<div class="wktime">${m2t(WS+i*SLOT)}</div>`;
+  let cols="";
+  for(let c=0;c<7;c++){const day=addDays(s,c),k=ymd(day);
+    let slots="",blocks="";
+    for(let i=0;i<NSLOT;i++)slots+=`<div class="wkslot" data-min="${WS+i*SLOT}" data-date="${k}"></div>`;
+    dayAppts(day).forEach(a=>{const top=((a.start-WS)/SLOT)*38,h=(a.dur/SLOT)*38-2;
+      blocks+=`<div class="wkappt" data-id="${a.id}" style="top:${top}px;height:${h}px;background:${tc(a.treat)}">${a.name.split(" ")[0]}</div>`;});
+    cols+=`<div class="wkcol"><div class="wkhead ${k===today?'today':''}"><div class="d">${day.toLocaleDateString("ar",{weekday:"short"})}</div>${day.getDate()}</div><div class="wktrack" style="height:${NSLOT*38}px">${slots}${blocks}</div></div>`;
+  }
+  return `<div class="weekgrid"><div class="wktimes"><div style="height:34px"></div>${times}</div><div class="wkcols">${cols}</div></div>`;
+}
+function bindWeek(el){
+  el.querySelectorAll(".wkslot").forEach(s=>s.onclick=()=>openNew(s.dataset.date,+s.dataset.min));
+  el.querySelectorAll(".wkappt").forEach(b=>b.onclick=e=>{e.stopPropagation();openEdit(+b.dataset.id);});
+}
+
+function renderMonth(d){
+  const today=ymd(new Date());
+  const first=new Date(d.getFullYear(),d.getMonth(),1);
+  const start=startOfWeek(first);
+  const WD=["السبت","الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة"];
+  let html=`<div class="month">`+WD.map(w=>`<div class="wd">${w}</div>`).join("");
+  for(let i=0;i<42;i++){const day=addDays(start,i),k=ymd(day),other=day.getMonth()!==d.getMonth();
+    const list=dayAppts(day);
+    let evs=list.slice(0,2).map(a=>`<div class="mev" style="background:${tc(a.treat)}">${m2t(a.start)} ${a.name.split(" ")[0]}</div>`).join("");
+    if(list.length>2)evs+=`<div class="more">+${list.length-2} المزيد</div>`;
+    html+=`<div class="mday ${other?'other':''} ${k===today?'today':''}" data-date="${k}"><div class="dn">${day.getDate()}</div>${evs}</div>`;
+  }
+  return html+`</div>`;
+}
+function bindMonth(el){el.querySelectorAll(".mday").forEach(c=>c.onclick=()=>{cur=new Date(c.dataset.date);setView("day");});}
+
+function renderLegend(){document.getElementById("legend").innerHTML=
+  TREAT.map(t=>`<div class="item"><span class="dot" style="background:${t.c}"></span>${t.k}</div>`).join("");}
+
+/* modal */
+let editId=null, selTreat="مراجعة", ctxDate=null;
+function renderTreatSel(){document.getElementById("mTreat").innerHTML=
+  TREAT.map(t=>`<button data-k="${t.k}" class="${t.k===selTreat?'active':''}"><span class="dot" style="background:${t.c}"></span>${t.k}</button>`).join("");
+  document.querySelectorAll("#mTreat button").forEach(b=>b.onclick=()=>{selTreat=b.dataset.k;renderTreatSel();});}
+function openNew(date,min){editId=null;ctxDate=date;selTreat="مراجعة";
+  document.getElementById("mTitle").textContent="موعد جديد";
+  document.getElementById("mName").value="";document.getElementById("mTime").value=m2t(min);
+  document.getElementById("mDur").value="30";document.getElementById("mDel").style.display="none";
+  checkWarn();renderTreatSel();show();}
+function openEdit(id){const a=APPTS.find(x=>x.id===id);if(!a)return;editId=id;ctxDate=a.date;selTreat=a.treat;
+  document.getElementById("mTitle").textContent="تعديل الموعد";
+  document.getElementById("mName").value=a.name;document.getElementById("mTime").value=m2t(a.start);
+  document.getElementById("mDur").value=String(a.dur);document.getElementById("mDel").style.display="block";
+  document.getElementById("mWarn").style.display="none";renderTreatSel();show();}
+const show=()=>document.getElementById("ov").classList.add("show");
+const closeModal=()=>document.getElementById("ov").classList.remove("show");
+function checkWarn(){const t=t2m(document.getElementById("mTime").value||"09:00");
+  const dur=+document.getElementById("mDur").value;
+  const conflict=APPTS.some(a=>a.date===ctxDate&&a.id!==editId&&t<a.start+a.dur&&a.start<t+dur);
+  const w=document.getElementById("mWarn");w.style.display=conflict?"block":"none";if(conflict)w.textContent="⚠ يتعارض مع موعد آخر في نفس الوقت";}
+function saveAppt(){const name=document.getElementById("mName").value.trim()||"بدون اسم";
+  const start=t2m(document.getElementById("mTime").value||"09:00");const dur=+document.getElementById("mDur").value;
+  if(editId){const a=APPTS.find(x=>x.id===editId);Object.assign(a,{name,start,dur,treat:selTreat});}
+  else APPTS.push({id:++seq,date:ctxDate,start,dur,name,treat:selTreat,status:"upcoming"});
+  save();closeModal();render();}
+function deleteAppt(){APPTS=APPTS.filter(a=>a.id!==editId);save();closeModal();render();}
+document.getElementById("ov").onclick=e=>{if(e.target.id==="ov")closeModal();};
+document.getElementById("mTime").oninput=checkWarn;document.getElementById("mDur").onchange=checkWarn;
+
+render();
+</script>
+</body>
+</html>
