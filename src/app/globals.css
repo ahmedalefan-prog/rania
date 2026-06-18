@@ -409,6 +409,20 @@ body.light .att-cell.leave { background: #fef3c7; color: #92400e; }
 .fm-bar > span { display: block; height: 100%; border-radius: 6px; transition: width .3s ease; }
 .fm-v { font-size: 13px; font-weight: bold; width: 100px; text-align: end; flex-shrink: 0; }
 
+/* ===== إدارة الخدمات (اسم/لون/سعر) ===== */
+.svc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; color: var(--muted); }
+.svc-h-color { width: 34px; flex-shrink: 0; text-align: center; }
+.svc-h-name { flex: 1; }
+.svc-h-price { width: 96px; flex-shrink: 0; text-align: center; }
+.svc-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.svc-color { width: 34px; height: 36px; padding: 2px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--panel2); cursor: pointer; flex-shrink: 0; }
+.svc-name { flex: 1; min-width: 0; padding: 9px 11px; border-radius: 9px; border: 1px solid var(--line);
+  background: var(--panel2); color: var(--text); font-size: 14px; font-family: inherit; }
+.svc-price { width: 96px; flex-shrink: 0; }
+.svc-price input { width: 100%; padding: 9px 8px; border-radius: 9px; border: 1px solid var(--line);
+  background: var(--panel2); color: var(--text); font-size: 14px; font-family: inherit; text-align: center; }
+
 /* ===== الصور والأشعة (مرفقات المريض) ===== */
 .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .att-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 8px; }

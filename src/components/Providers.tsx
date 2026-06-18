@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, DEFAULT_SETTINGS, type Settings } from "@/lib/db";
+import { applyProcOverrides } from "@/lib/dental";
 import { UIProvider } from "./ui";
 
 interface Ctx {
@@ -21,6 +22,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const stored = useLiveQuery(() => db.settings.get("app"), []);
   // دمج مع الافتراضيات حتى تُملأ أي حقول أُضيفت لاحقاً ولم تُحفظ بعد
   const settings: Settings = { ...DEFAULT_SETTINGS, ...stored, key: "app" };
+
+  // مزامنة تسميات/ألوان الخدمات المخصّصة مع الكائنات المشتركة قبل عرض الأبناء
+  // (متزامن أثناء العرض لتعكسه كل المكوّنات في نفس الـ commit)
+  applyProcOverrides(settings.procNames, settings.procColors);
 
   // زرع الإعدادات الافتراضية مرة واحدة عند أول تشغيل (كتابة خارج liveQuery)
   useEffect(() => {

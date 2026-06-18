@@ -38,6 +38,26 @@ export const PROC_MAP: Record<ProcKey, Procedure> = Object.fromEntries(
   PROCEDURES.map((p) => [p.key, p]),
 ) as Record<ProcKey, Procedure>;
 
+// القيم الأصلية للأسماء والألوان (مرجع ثابت لا يتغيّر) — تُستخدم كافتراضي وكـ placeholder
+export const DEFAULT_PROC_NAME: Record<ProcKey, string> = Object.fromEntries(
+  PROCEDURES.map((p) => [p.key, p.name]),
+) as Record<ProcKey, string>;
+export const DEFAULT_PROC_COLOR: Record<ProcKey, string> = Object.fromEntries(
+  PROCEDURES.map((p) => [p.key, p.color]),
+) as Record<ProcKey, string>;
+
+// تطبيق تسميات/ألوان الخدمات المخصّصة من الإعدادات على الكائنات المشتركة
+// (PROC_MAP يشير لنفس كائنات PROCEDURES، لذا التعديل ينعكس في كل المستهلكين بما فيهم pcol وتوليد الـ SVG)
+export function applyProcOverrides(
+  names?: Record<string, string>,
+  colors?: Record<string, string>,
+): void {
+  for (const p of PROCEDURES) {
+    p.name = names?.[p.key]?.trim() || DEFAULT_PROC_NAME[p.key];
+    p.color = colors?.[p.key] || DEFAULT_PROC_COLOR[p.key];
+  }
+}
+
 export const SOUND = "#f1f5f9";
 export const TERMINAL: ProcKey[] = ["extract", "implant"]; // تُنهي السن وتلغي ما سبق
 

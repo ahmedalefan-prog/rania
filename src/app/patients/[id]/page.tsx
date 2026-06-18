@@ -12,7 +12,7 @@ import { Attachments } from "@/components/Attachments";
 import { deleteEvent } from "@/lib/chartActions";
 import { displayAge, medicalAlerts, GENDER_LABEL } from "@/lib/patient";
 import { toothSvg } from "@/lib/toothSvg";
-import { ADULT, CHILD, PROCEDURES } from "@/lib/dental";
+import { ADULT, CHILD, PROCEDURES, PROC_MAP, pcol } from "@/lib/dental";
 
 type Tab = "profile" | "chart" | "media" | "timeline";
 
@@ -71,7 +71,7 @@ export default function PatientPage() {
     ].filter(([, v]) => v).map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
     const flags = [patient.smoker && "مدخّن", patient.bloodThinner && "مميّع للدم", patient.pregnant && "حامل"].filter(Boolean).join("، ");
     const evRows = evs.map((e) =>
-      `<tr><td>${e.dateISO}</td><td>${e.toothId}</td><td>${e.procName}${e.surface ? ` (${e.surface})` : ""}</td><td>${e.status === "done" ? "مكتمل" : "مقترح"}</td><td style="text-align:left">${e.cost > 0 ? money(e.cost) : "—"}</td></tr>`).join("");
+      `<tr><td>${e.dateISO}</td><td>${e.toothId}</td><td>${PROC_MAP[e.procKey]?.name ?? e.procName}${e.surface ? ` (${e.surface})` : ""}</td><td>${e.status === "done" ? "مكتمل" : "مقترح"}</td><td style="text-align:left">${e.cost > 0 ? money(e.cost) : "—"}</td></tr>`).join("");
     const alertHtml = alerts.length
       ? `<div class="alert"><b>⚠️ تنبيه طبي:</b> ${alerts.map((a) => a.label).join(" • ")}</div>` : "";
 
@@ -205,10 +205,10 @@ export default function PatientPage() {
               const planned = e.status === "planned";
               return (
                 <div key={e.id} className={`tl-item ${planned ? "planned" : ""}`}>
-                  <span className="dot" style={{ background: e.color, opacity: planned ? 0.55 : 1 }} />
+                  <span className="dot" style={{ background: pcol(e.procKey), opacity: planned ? 0.55 : 1 }} />
                   <div className="info">
                     <div className="t1">
-                      {e.procName} {e.surface ? `(${e.surface})` : ""}
+                      {PROC_MAP[e.procKey]?.name ?? e.procName} {e.surface ? `(${e.surface})` : ""}
                       <span className={planned ? "badge-plan" : "badge-done"}>{planned ? "مقترح" : "مكتمل"}</span>
                     </div>
                     <div className="t2">السن {e.toothId} • {e.dateISO}</div>

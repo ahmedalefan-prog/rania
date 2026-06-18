@@ -7,7 +7,7 @@ import { useSettings } from "@/components/Providers";
 import { useUI } from "@/components/ui";
 import { Tooth } from "@/components/icons";
 import { m2t, t2m } from "@/lib/appt";
-import { PROCEDURES } from "@/lib/dental";
+import { PROCEDURES, DEFAULT_PROC_NAME, DEFAULT_PROC_COLOR } from "@/lib/dental";
 
 export default function SettingsPage() {
   const { settings, update } = useSettings();
@@ -115,19 +115,33 @@ export default function SettingsPage() {
       </div>
 
       <div className="card">
-        <h4 className="sec-title">تسعيرة الخدمات</h4>
+        <h4 className="sec-title">الخدمات — الاسم واللون والسعر</h4>
         <p className="muted" style={{ fontSize: 12, marginTop: 0 }}>
-          تُستخدم هذه الأسعار تلقائياً عند تسجيل الإجراءات على الأسنان (يمكن تعديلها وقت التسجيل لاحقاً عند الحاجة).
+          عدّل اسم الخدمة، لونها على مخطط الأسنان، وسعرها الافتراضي. التغييرات تظهر في المخطط والسجل والتقرير. اترك الاسم فارغاً لاستخدام الافتراضي.
         </p>
-        <div className="grid2">
-          {PROCEDURES.map((p) => (
-            <div className="field" key={p.key} style={{ marginBottom: 8 }}>
-              <label><span className="cat-dot" style={{ background: p.color, display: "inline-block", verticalAlign: "-1px", marginInlineEnd: 6 }} />{p.name} ({settings.currency})</label>
+        <div className="svc-head">
+          <span className="svc-h-color">اللون</span>
+          <span className="svc-h-name">اسم الخدمة</span>
+          <span className="svc-h-price">السعر ({settings.currency})</span>
+        </div>
+        {PROCEDURES.map((p) => (
+          <div className="svc-row" key={p.key}>
+            <input type="color" className="svc-color" title="لون الخدمة على المخطط"
+              value={settings.procColors?.[p.key] || DEFAULT_PROC_COLOR[p.key]}
+              onChange={(e) => update({ procColors: { ...settings.procColors, [p.key]: e.target.value } })} />
+            <input className="svc-name" value={settings.procNames?.[p.key] ?? ""} placeholder={DEFAULT_PROC_NAME[p.key]}
+              onChange={(e) => update({ procNames: { ...settings.procNames, [p.key]: e.target.value } })} />
+            <div className="svc-price">
               <input inputMode="decimal" value={settings.prices?.[p.key] ?? p.cost}
                 onChange={(e) => update({ prices: { ...settings.prices, [p.key]: Number(e.target.value) || 0 } })} />
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+        <button className="btn btn-ghost" style={{ marginTop: 10 }}
+          onClick={async () => {
+            const ok = await confirm({ title: "استعادة الأسماء والألوان الافتراضية؟", body: "لن تتأثر الأسعار.", confirmText: "استعادة" });
+            if (ok) { await update({ procNames: {}, procColors: {} }); toast("تمت استعادة الأسماء والألوان الافتراضية"); }
+          }}>استعادة الأسماء والألوان الافتراضية</button>
       </div>
 
       <div className="card">

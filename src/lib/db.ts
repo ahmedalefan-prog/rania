@@ -121,7 +121,9 @@ export interface Settings {
   slotMin: number;
   clinicName: string;
   currency: string;
-  prices: Record<string, number>; // تسعيرة الخدمات حسب نوع الإجراء
+  prices: Record<string, number>;     // تسعيرة الخدمات حسب نوع الإجراء
+  procNames: Record<string, string>;  // تسميات مخصّصة للخدمات (فارغ = الاسم الافتراضي)
+  procColors: Record<string, string>; // ألوان مخصّصة للخدمات (فارغ = اللون الافتراضي)
 }
 
 const DEFAULT_PRICES: Record<string, number> = Object.fromEntries(
@@ -139,6 +141,8 @@ export const DEFAULT_SETTINGS: Settings = {
   clinicName: "عيادة د. رانيا للأسنان",
   currency: "$",
   prices: DEFAULT_PRICES,
+  procNames: {},
+  procColors: {},
 };
 
 export class ClinicDB extends Dexie {
