@@ -7,7 +7,7 @@ import { useSettings } from "@/components/Providers";
 import { useUI } from "@/components/ui";
 import { Tooth } from "@/components/icons";
 import { m2t, t2m } from "@/lib/appt";
-import { PROCEDURES, DEFAULT_PROC_NAME, DEFAULT_PROC_COLOR } from "@/lib/dental";
+import { PROCEDURES, DEFAULT_PROC_NAME, DEFAULT_PROC_COLOR, SURFACES, DEFAULT_SURF_NAME, DEFAULT_SURF_LABEL } from "@/lib/dental";
 
 export default function SettingsPage() {
   const { settings, update } = useSettings();
@@ -142,6 +142,30 @@ export default function SettingsPage() {
             const ok = await confirm({ title: "استعادة الأسماء والألوان الافتراضية؟", body: "لن تتأثر الأسعار.", confirmText: "استعادة" });
             if (ok) { await update({ procNames: {}, procColors: {} }); toast("تمت استعادة الأسماء والألوان الافتراضية"); }
           }}>استعادة الأسماء والألوان الافتراضية</button>
+      </div>
+
+      <div className="card">
+        <h4 className="sec-title">أسطح الأسنان — الأسماء</h4>
+        <p className="muted" style={{ fontSize: 12, marginTop: 0 }}>
+          أسماء أسطح السن الخمسة كما تظهر عند تسجيل الإجراءات وفي السجل والتقرير. اترك الحقل فارغاً لاستخدام الافتراضي.
+        </p>
+        <div className="svc-head">
+          <span className="svc-h-name">الاسم العربي</span>
+          <span className="svc-h-name">التسمية الإنجليزية</span>
+        </div>
+        {SURFACES.map((s) => (
+          <div className="svc-row" key={s.key}>
+            <input className="svc-name" value={settings.surfNames?.[s.key] ?? ""} placeholder={DEFAULT_SURF_NAME[s.key]}
+              onChange={(e) => update({ surfNames: { ...settings.surfNames, [s.key]: e.target.value } })} />
+            <input className="svc-name" value={settings.surfLabels?.[s.key] ?? ""} placeholder={DEFAULT_SURF_LABEL[s.key]}
+              dir="ltr" onChange={(e) => update({ surfLabels: { ...settings.surfLabels, [s.key]: e.target.value } })} />
+          </div>
+        ))}
+        <button className="btn btn-ghost" style={{ marginTop: 10 }}
+          onClick={async () => {
+            const ok = await confirm({ title: "استعادة أسماء الأسطح الافتراضية؟", confirmText: "استعادة" });
+            if (ok) { await update({ surfNames: {}, surfLabels: {} }); toast("تمت استعادة أسماء الأسطح الافتراضية"); }
+          }}>استعادة أسماء الأسطح الافتراضية</button>
       </div>
 
       <div className="card">

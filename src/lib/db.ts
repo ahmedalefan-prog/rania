@@ -42,7 +42,8 @@ export interface ClinicalEvent {
   eid: string;
   patientId: number;
   toothId: number;
-  surface: string; // اسم السطح بالعربية أو "" لإجراء كامل السن
+  surface: string;          // اسم السطح بالعربية (لقطة) أو "" لإجراء كامل السن
+  surfaceKey?: SurfaceKey;  // مفتاح السطح — يُحلّ اسمه حياً ليسري التعديل رجعياً (قد يغيب في السجلات القديمة)
   procKey: ProcKey;
   procName: string;
   color: string;
@@ -124,6 +125,8 @@ export interface Settings {
   prices: Record<string, number>;     // تسعيرة الخدمات حسب نوع الإجراء
   procNames: Record<string, string>;  // تسميات مخصّصة للخدمات (فارغ = الاسم الافتراضي)
   procColors: Record<string, string>; // ألوان مخصّصة للخدمات (فارغ = اللون الافتراضي)
+  surfNames: Record<string, string>;  // أسماء عربية مخصّصة لأسطح السن
+  surfLabels: Record<string, string>; // تسميات إنجليزية مخصّصة لأسطح السن
 }
 
 const DEFAULT_PRICES: Record<string, number> = Object.fromEntries(
@@ -143,6 +146,8 @@ export const DEFAULT_SETTINGS: Settings = {
   prices: DEFAULT_PRICES,
   procNames: {},
   procColors: {},
+  surfNames: {},
+  surfLabels: {},
 };
 
 export class ClinicDB extends Dexie {

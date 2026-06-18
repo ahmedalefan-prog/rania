@@ -74,6 +74,7 @@ export async function applyProcedure(
     await db.events.add({
       eid, patientId, toothId,
       surface: p.whole ? "" : SURFACE_NAME[surface],
+      surfaceKey: p.whole ? undefined : surface,
       procKey, procName: p.name, color: p.color,
       status, cost, dateISO: todayISO(), createdAt: Date.now(),
     });

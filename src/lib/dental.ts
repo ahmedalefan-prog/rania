@@ -78,6 +78,26 @@ export const SURFACE_NAME: Record<SurfaceKey, string> = Object.fromEntries(
   SURFACES.map((s) => [s.key, s.name]),
 ) as Record<SurfaceKey, string>;
 
+// القيم الأصلية لأسماء/تسميات الأسطح (مرجع ثابت) — افتراضي و placeholder
+export const DEFAULT_SURF_NAME: Record<SurfaceKey, string> = Object.fromEntries(
+  SURFACES.map((s) => [s.key, s.name]),
+) as Record<SurfaceKey, string>;
+export const DEFAULT_SURF_LABEL: Record<SurfaceKey, string> = Object.fromEntries(
+  SURFACES.map((s) => [s.key, s.label]),
+) as Record<SurfaceKey, string>;
+
+// تطبيق أسماء/تسميات الأسطح المخصّصة على الكائنات المشتركة (SURFACES + SURFACE_NAME)
+export function applySurfOverrides(
+  names?: Record<string, string>,
+  labels?: Record<string, string>,
+): void {
+  for (const s of SURFACES) {
+    s.name = names?.[s.key]?.trim() || DEFAULT_SURF_NAME[s.key];
+    s.label = labels?.[s.key]?.trim() || DEFAULT_SURF_LABEL[s.key];
+    SURFACE_NAME[s.key] = s.name;
+  }
+}
+
 // ترقيم FDI الدولي
 export const ADULT = {
   upper: [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28],

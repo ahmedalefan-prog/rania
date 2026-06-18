@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, DEFAULT_SETTINGS, type Settings } from "@/lib/db";
-import { applyProcOverrides } from "@/lib/dental";
+import { applyProcOverrides, applySurfOverrides } from "@/lib/dental";
 import { UIProvider } from "./ui";
 
 interface Ctx {
@@ -26,6 +26,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // مزامنة تسميات/ألوان الخدمات المخصّصة مع الكائنات المشتركة قبل عرض الأبناء
   // (متزامن أثناء العرض لتعكسه كل المكوّنات في نفس الـ commit)
   applyProcOverrides(settings.procNames, settings.procColors);
+  applySurfOverrides(settings.surfNames, settings.surfLabels);
 
   // زرع الإعدادات الافتراضية مرة واحدة عند أول تشغيل (كتابة خارج liveQuery)
   useEffect(() => {

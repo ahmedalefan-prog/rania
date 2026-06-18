@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AlertTriangle, User, HeartPulse, FileText } from "lucide-react";
-import { db, type Patient, type Attachment } from "@/lib/db";
+import { db, type Patient, type Attachment, type ClinicalEvent } from "@/lib/db";
 import { useSettings } from "@/components/Providers";
 import { useUI } from "@/components/ui";
 import { Odontogram } from "@/components/Odontogram";
@@ -12,7 +12,10 @@ import { Attachments } from "@/components/Attachments";
 import { deleteEvent } from "@/lib/chartActions";
 import { displayAge, medicalAlerts, GENDER_LABEL } from "@/lib/patient";
 import { toothSvg } from "@/lib/toothSvg";
-import { ADULT, CHILD, PROCEDURES, PROC_MAP, pcol } from "@/lib/dental";
+import { ADULT, CHILD, PROCEDURES, PROC_MAP, pcol, SURFACE_NAME } from "@/lib/dental";
+
+// اسم السطح: يُحلّ من المفتاح حياً (يسري التعديل رجعياً) مع تراجع لِلَّقطة في السجلات القديمة
+const surfOf = (e: ClinicalEvent) => (e.surfaceKey ? SURFACE_NAME[e.surfaceKey] : e.surface);
 
 type Tab = "profile" | "chart" | "media" | "timeline";
 
@@ -71,7 +74,7 @@ export default function PatientPage() {
     ].filter(([, v]) => v).map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
     const flags = [patient.smoker && "مدخّن", patient.bloodThinner && "مميّع للدم", patient.pregnant && "حامل"].filter(Boolean).join("، ");
     const evRows = evs.map((e) =>
-      `<tr><td>${e.dateISO}</td><td>${e.toothId}</td><td>${PROC_MAP[e.procKey]?.name ?? e.procName}${e.surface ? ` (${e.surface})` : ""}</td><td>${e.status === "done" ? "مكتمل" : "مقترح"}</td><td style="text-align:left">${e.cost > 0 ? money(e.cost) : "—"}</td></tr>`).join("");
+      `<tr><td>${e.dateISO}</td><td>${e.toothId}</td><td>${PROC_MAP[e.procKey]?.name ?? e.procName}${surfOf(e) ? ` (${surfOf(e)})` : ""}</td><td>${e.status === "done" ? "مكتمل" : "مقترح"}</td><td style="text-align:left">${e.cost > 0 ? money(e.cost) : "—"}</td></tr>`).join("");
     const alertHtml = alerts.length
       ? `<div class="alert"><b>⚠️ تنبيه طبي:</b> ${alerts.map((a) => a.label).join(" • ")}</div>` : "";
 
@@ -208,7 +211,7 @@ export default function PatientPage() {
                   <span className="dot" style={{ background: pcol(e.procKey), opacity: planned ? 0.55 : 1 }} />
                   <div className="info">
                     <div className="t1">
-                      {PROC_MAP[e.procKey]?.name ?? e.procName} {e.surface ? `(${e.surface})` : ""}
+                      {PROC_MAP[e.procKey]?.name ?? e.procName} {surfOf(e) ? `(${surfOf(e)})` : ""}
                       <span className={planned ? "badge-plan" : "badge-done"}>{planned ? "مقترح" : "مكتمل"}</span>
                     </div>
                     <div className="t2">السن {e.toothId} • {e.dateISO}</div>
