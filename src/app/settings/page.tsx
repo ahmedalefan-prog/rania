@@ -26,6 +26,7 @@ export default function SettingsPage() {
       employees: await db.employees.toArray(),
       waitlist: await db.waitlist.toArray(),
       attendance: await db.attendance.toArray(),
+      attachments: await db.attachments.toArray(),
       settings: await db.settings.toArray(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -46,8 +47,8 @@ export default function SettingsPage() {
     let d;
     try { d = JSON.parse(await file.text()); }
     catch { toast("ملف غير صالح", "error"); return; }
-    await db.transaction("rw", [db.patients, db.charts, db.events, db.appointments, db.transactions, db.employees, db.waitlist, db.attendance, db.settings], async () => {
-      await Promise.all([db.patients, db.charts, db.events, db.appointments, db.transactions, db.employees, db.waitlist, db.attendance].map((t) => t.clear()));
+    await db.transaction("rw", [db.patients, db.charts, db.events, db.appointments, db.transactions, db.employees, db.waitlist, db.attendance, db.attachments, db.settings], async () => {
+      await Promise.all([db.patients, db.charts, db.events, db.appointments, db.transactions, db.employees, db.waitlist, db.attendance, db.attachments].map((t) => t.clear()));
       if (d.patients) await db.patients.bulkPut(d.patients);
       if (d.charts) await db.charts.bulkPut(d.charts);
       if (d.events) await db.events.bulkPut(d.events);
@@ -56,6 +57,7 @@ export default function SettingsPage() {
       if (d.employees) await db.employees.bulkPut(d.employees);
       if (d.waitlist) await db.waitlist.bulkPut(d.waitlist);
       if (d.attendance) await db.attendance.bulkPut(d.attendance);
+      if (d.attachments) await db.attachments.bulkPut(d.attachments);
       if (d.settings?.[0]) await db.settings.put(d.settings[0]);
     });
     toast("تمت الاستعادة بنجاح ✓");

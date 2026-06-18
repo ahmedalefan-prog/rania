@@ -92,6 +92,17 @@ export interface Employee {
   notes?: string;
 }
 
+// صورة أو أشعة مرفقة بملف المريض (تُخزَّن كـ dataURL ليبقى متوافقاً مع النسخ الاحتياطي)
+export interface Attachment {
+  id?: number;
+  patientId: number;
+  kind: "photo" | "xray"; // صورة عيادية | أشعة
+  name: string;           // اسم/وصف اختياري
+  data: string;           // dataURL (base64) للصورة بعد الضغط
+  dateISO: string;        // YYYY-MM-DD
+  createdAt: number;
+}
+
 export type AttStatus = "present" | "absent" | "leave";
 export interface Attendance {
   id?: number;
@@ -139,6 +150,7 @@ export class ClinicDB extends Dexie {
   employees!: Table<Employee, number>;
   waitlist!: Table<WaitItem, number>;
   attendance!: Table<Attendance, number>;
+  attachments!: Table<Attachment, number>;
   settings!: Table<Settings, string>;
 
   constructor() {
@@ -162,6 +174,10 @@ export class ClinicDB extends Dexie {
     // الإصدار 3: حضور الموظفين
     this.version(3).stores({
       attendance: "++id, employeeId, date, [employeeId+date]",
+    });
+    // الإصدار 4: مرفقات (صور وأشعة) لملف المريض
+    this.version(4).stores({
+      attachments: "++id, patientId, kind, createdAt",
     });
   }
 }
